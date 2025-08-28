@@ -579,6 +579,7 @@ function collectablesCollide() {
       collectables[i].y + collectableHeight > player.y
     ) {
       collectables[i].collected = true;
+      collectablejumpchange()
     }
   }
 }
@@ -793,4 +794,10 @@ function handleKeyUp(e) {
 
 function loadJson() {
   getJSON("halle.json", JsonFunction); //runs this before the setup because of timing things
+}
+
+
+function collectablejumpchange(){
+  playerJumpStrength = 20;
+  console.log('test');
 }
