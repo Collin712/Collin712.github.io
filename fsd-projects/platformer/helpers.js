@@ -388,7 +388,7 @@ function deathOfPlayer() {
   );
   if (keyPress.any) {
     keyPress.any = false;
-    window.location.reload();
+    window.location.reload(true);
   }
 }
 
