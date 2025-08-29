@@ -204,6 +204,7 @@ function animate() {
 }
 
 function drawRobot() {
+  deathscount = 0;
   //ctx.drawImage(imageVaribale, sourceY, SourceX, sourceWidth, sourceHeight, canvasX, canvasY, finalWidth, finalHeight)
   //https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
   //you only need the extra four source arguments if you want to display just a portion of the picture; if you want to show the whole picture you can just do drawImage(imageVar, canvasX, canvasY, width, height)
@@ -363,17 +364,17 @@ function projectileCollision() {
 }
 
 function deathOfPlayer() {
-  ctx.fillStyle = "grey";
+  ctx.fillStyle = "black";
   ctx.fillRect(
     canvas.width / 4,
     canvas.height / 6,
     canvas.width / 2,
     canvas.height / 2
   );
-  ctx.fillStyle = "black";
+  ctx.fillStyle = "white";
   ctx.font = "800% serif";
   ctx.fillText(
-    "You are dead",
+    "You Died",
     canvas.width / 4,
     canvas.height / 6 + canvas.height / 5,
     (canvas.width / 16) * 14

@@ -6,6 +6,7 @@ const maxSpeed = 10; // maximum horizontal speed, not vertical
 var playerJumpStrength = 15; // this is subtracted from the speedY each jump
 const projectileSpeed = 30; // the speed of projectiles
 let shouldDrawGrid = false;
+var deathscount;
 
 /////////////////////////////////////////////////
 //////////ONLY CHANGE ABOVE THIS POINT///////////
