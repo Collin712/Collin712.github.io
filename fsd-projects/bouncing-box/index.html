@@ -6,31 +6,50 @@
     <script src="jquery.min.js"></script>
     <style>
       .box {
-        width: 70px;
-        height: 70px;
-        background-color: teal;
-        font-size: 300%;
+        width: 100px;
+        height: 100px;
+        background-color: rgb(0, 0, 0);
+        font-size: 500%;
         text-align: center;
         user-select: none;
         display: block;
         position: absolute;
-        top: 100px;
+        top: 400px;
         /* Change me! */
         left: 0px;
+        color: white;
+        border-style: solid;
+        border-radius: 20px;
       }
 
       .board {
         height: 100vh;
       }
+
+      body {
+        margin: 0;
+        padding: 0;
+        overflow-y: hidden;
+        overflow-x: hidden;
+      }
+      .bar{
+        background-color: whitesmoke;
+        width: 100%;
+        height: 80px;
+      }
     </style>
     <!-- 	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> -->
   </head>
 
-  <body class="board">
+  <body bgcolor="lightgray" class="board">
+    <div class="bar">
+      <button onclick="doubleSpeed()">Double Speed</button>
+    </div>
     <!-- HTML for the box -->
     <div class="box">?</div>
 
     <script>
+
       (function () {
         "use strict";
         /* global jQuery */
@@ -48,8 +67,8 @@
           boardWidth = board.width();
         });
 
-        // Every 50 milliseconds, call the update Function (see below)
-        setInterval(update, 50);
+        // Every 10 milliseconds, call the update Function (see below)
+        setInterval(update, 10);
 
         // Every time the box is clicked, call the handleBoxClick Function (see below)
         box.on("click", handleBoxClick);
@@ -64,6 +83,13 @@
           box.text(newText);
         }
 
+        window.doubleSpeed = function doubleSpeed(){
+          points = points * 2;
+          speed = speed * 2;
+          changeBoxText(points);
+        }
+
+
         //////////////////////////////////////////////////////////////////
         /////////////////// YOUR CODE BELOW HERE /////////////////////////
         //////////////////////////////////////////////////////////////////
@@ -71,20 +97,20 @@
         // TODO 2 - Variable declarations
         var positionX = 0;
         var points = 0;
-        var speed = 10;
+        var speed = 2;
 
 
 
 
         /**
-         * This Function will be called 20 times/second.
+         * This Function will be called 100 times/second.
          * Each time it is called, it should move the Box to a new location.
          * If the box drifts off the screen, turn it around!
          */
         function update() {
           moveBoxTo(positionX);
           positionX = positionX + speed;
-          if(positionX > boardWidth){
+          if(positionX + 100 > boardWidth){
             speed = speed * -1;
           }
           if(positionX < 0){
@@ -107,11 +133,8 @@
           positionX = 0;
           changeBoxText(points)
           points++;
-          speed = speed + 3
-          speed = 3 * points + 10;
-
-
-
+          speed = speed + 0.6
+          speed = 0.6 * points + 2;
         }
 
 
