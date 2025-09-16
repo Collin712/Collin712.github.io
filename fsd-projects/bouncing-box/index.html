@@ -32,19 +32,15 @@
         overflow-y: hidden;
         overflow-x: hidden;
       }
-      .bar{
-        background-color: whitesmoke;
-        width: 100%;
-        height: 80px;
-      }
+
     </style>
     <!-- 	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> -->
   </head>
 
   <body bgcolor="lightgray" class="board">
-    <div class="bar">
+
       <button onclick="doubleSpeed()">Double Speed</button>
-    </div>
+
     <!-- HTML for the box -->
     <div class="box">?</div>
 
@@ -61,6 +57,7 @@
         var box = jQuery(".box"); // reference to the HTML .box element
         var board = jQuery(".board"); // reference to the HTML .board element
         var boardWidth = board.width(); // the maximum X-Coordinate of the screen
+        var boardHeight = jQuery(window).height();
 
         // update the boardWidth variable when the window is resized
         jQuery(window).on("resize", function () {
@@ -74,9 +71,10 @@
         box.on("click", handleBoxClick);
 
         // moves the Box to a new position on the screen along the X-Axis
-        function moveBoxTo(newPositionX) {
-          box.css("left", newPositionX);
-        }
+        function moveBoxTo(newPositionX, newPositionY) {
+  box.css("left", newPositionX);
+  box.css("top", newPositionY);
+}
 
         // changes the text displayed on the Box
         function changeBoxText(newText) {
@@ -86,6 +84,7 @@
         window.doubleSpeed = function doubleSpeed(){
           points = points * 2;
           speed = speed * 2;
+          speedY = speedY *2;
           changeBoxText(points);
         }
 
@@ -98,6 +97,8 @@
         var positionX = 0;
         var points = 0;
         var speed = 2;
+        var positionY;
+        var speedY;
 
 
 
@@ -108,7 +109,7 @@
          * If the box drifts off the screen, turn it around!
          */
         function update() {
-          moveBoxTo(positionX);
+          moveBoxTo(positionX, positionY);
           positionX = positionX + speed;
           if(positionX + 100 > boardWidth){
             speed = speed * -1;
@@ -116,7 +117,13 @@
           if(positionX < 0){
             speed *= -1;
           }
-
+          positionY = positionY + speedY;
+          if(positionY + 100 > boardHeight){
+            speedY = speedY * -1;
+          }
+          if(positionY < 0){
+            speedY *= -1;
+          }
         
 
           
@@ -130,11 +137,14 @@
          * - move the box to the left side of the screen.
          */
         function handleBoxClick() {
-          positionX = 0;
+          positionX = Math.random() * 1000;
+          positionY = Math.random() * 800;
           changeBoxText(points)
           points++;
           speed = speed + 0.6
           speed = 0.6 * points + 2;
+          speedY = speedY + 0.6
+          speedY = 0.6 * points + 2;
         }
 
 
