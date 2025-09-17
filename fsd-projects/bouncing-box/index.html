@@ -33,19 +33,53 @@
         overflow-x: hidden;
       }
 
+      #missCounter{
+        display: flex;
+        justify-content: center;
+        font-family: monospace;
+        font-size: xx-large;
+      }
+      #gameLose{
+        display: none;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        background-color: black;
+        color: white;
+        border-color: white;
+        border-width: 10px;
+        border-style: solid;
+        width: 500px;
+        height: 500px;
+        font-size: 300%;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
     </style>
     <!-- 	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> -->
   </head>
 
   <body bgcolor="lightgray" class="board">
-
-      <button onclick="doubleSpeed()">Double Speed</button>
+    <center>
+      <div id="missCounter">
+        <p>Misses Not Loaded</p>
+      </div>
+    </center>
+    <center>
+    <div id="gameLose">
+        <p>You Missed 10 Times</p>
+        <p>You Lose</p>
+    </div>
+    </center>
 
     <!-- HTML for the box -->
     <div class="box">?</div>
 
     <script>
-
+      document.getElementById("missCounter").textContent = "Misses: 0";
       (function () {
         "use strict";
         /* global jQuery */
@@ -65,27 +99,37 @@
         });
 
         // Every 10 milliseconds, call the update Function (see below)
-        setInterval(update, 10);
+        var interval = setInterval(update, 10);
 
         // Every time the box is clicked, call the handleBoxClick Function (see below)
         box.on("click", handleBoxClick);
+        board.on("click", handleBoardClick);
 
         // moves the Box to a new position on the screen along the X-Axis
         function moveBoxTo(newPositionX, newPositionY) {
-  box.css("left", newPositionX);
-  box.css("top", newPositionY);
-}
+          box.css("left", newPositionX);
+          box.css("top", newPositionY);
+        }
 
         // changes the text displayed on the Box
         function changeBoxText(newText) {
           box.text(newText);
         }
 
-        window.doubleSpeed = function doubleSpeed(){
-          points = points * 2;
-          speed = speed * 2;
-          speedY = speedY *2;
-          changeBoxText(points);
+        function handleBoardClick(){
+          misses = misses + 1;
+          document.getElementById("missCounter").textContent = "Misses: " + misses;
+          endGame()
+        }
+
+        function endGame() {
+          if(misses >= 10){
+            misses = 9
+            clearInterval(interval);
+            moveBoxTo(10000, 10000);
+            document.getElementById("gameLose").style.display = "flex";
+            document.getElementById("missCounter").style.display = "none";
+          }
         }
 
 
@@ -94,11 +138,12 @@
         //////////////////////////////////////////////////////////////////
 
         // TODO 2 - Variable declarations
-        var positionX = 0;
+        var misses = 0;
+        var positionX = Math.random() * boardWidth - 100;
         var points = 0;
         var speed = 2;
-        var positionY;
-        var speedY;
+        var positionY = Math.random() * boardHeight - 100;
+        var speedY = -2;
 
 
 
@@ -124,9 +169,12 @@
           if(positionY < 0){
             speedY *= -1;
           }
-        
-
-          
+          if(positionX < 0){
+            positionX = 0 
+          }
+          if(positionY < 0){
+            positionY = 0
+          }
         }
 
         /**
@@ -137,14 +185,16 @@
          * - move the box to the left side of the screen.
          */
         function handleBoxClick() {
-          positionX = Math.random() * 1000;
-          positionY = Math.random() * 800;
+          misses = misses - 1;
+          positionX = Math.random() * boardWidth - 100;
+          positionY = Math.random() * boardHeight - 100;
           changeBoxText(points)
           points++;
           speed = speed + 0.6
           speed = 0.6 * points + 2;
           speedY = speedY + 0.6
           speedY = 0.6 * points + 2;
+
         }
 
 
