@@ -17,12 +17,12 @@
     }
     #floor{
         position: absolute;
-        top: 85vh;
-        width: 100vw;
-        height: 15vh;
+        top: 40vw;
+        width: 100%;
+        height: 100%;
         background-color: black;
         box-sizing: border-box;
-        border-top: 1vh solid white;
+        border-top: 0.5vw solid white;
     }
     #spongebob{
         position: absolute;
@@ -30,9 +30,9 @@
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center;
-        width: 11vh;
-        height: 15vh;
-        top: 70vh;
+        width: 5vw;
+        height: 7vw;
+        top: 33vw;
         left: 42vw;
     }
     #jumpCount{
@@ -62,10 +62,10 @@
     //variables declared here ↓
     const floor = document.getElementById("floor");
     const spongebob = document.getElementById("spongebob");
-    const gravity = 0.023;
-    const jumpStrength = 1;
+    const gravity = 0.01;
+    const jumpStrength = 0.45;
     const jumpSound = new Audio("spongebob.mp3");
-    var floorY = parseFloat(window.getComputedStyle(floor).top) / window.innerHeight * 100;
+    var floorY = 40;
     var upHeld = false;
     var leftHeld = false;
     var rightHeld = false;
@@ -125,18 +125,18 @@
         spongebobY += spongebobSpeedY;
 
         //floor collision
-        if(spongebobY >= floorY - 15){
+        if(spongebobY >= floorY - 7){
             spongebobOnGround = true;
             spongebobSpeedY = 0;
-            spongebobY = floorY - 15;
+            spongebobY = floorY - 7;
         }else{
             spongebobOnGround = false;
         }
 
         //wall collision
-        if(spongebobX >= 93){
+        if(spongebobX >= 95){
             spongebobOnRightWall = true;
-            spongebobX = 93;
+            spongebobX = 95;
         }else{
             spongebobOnRightWall = false;
         }
@@ -177,7 +177,7 @@
 
     function render(){
         //render spongebob
-        spongebob.style.top = spongebobY + "vh";
+        spongebob.style.top = spongebobY + "vw";
         spongebob.style.left = spongebobX + "vw";
 
         document.getElementById("jumpCount").textContent = "Jumps: " + jumpCount;
