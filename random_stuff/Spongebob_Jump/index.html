@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spongebob Jump</title>
+    <link rel="icon" type="image/x-icon" href="spongebob.png">
+<style>
+    body{
+        margin: 0;
+        padding: 0;
+        background-color: cornflowerblue;
+        overflow-y: hidden;
+        overflow-x: hidden;
+        font-family: fantasy;
+        user-select: none;
+    }
+    #floor{
+        position: absolute;
+        top: 85vh;
+        width: 100vw;
+        height: 15vh;
+        background-color: black;
+        box-sizing: border-box;
+        border-top: 1vh solid white;
+    }
+    #spongebob{
+        position: absolute;
+        background-image: url(spongebob.png);
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        width: 11vh;
+        height: 15vh;
+        top: 70vh;
+        left: 42vw;
+    }
+    #jumpCount{
+        position: absolute;
+        top: 3vh;
+        left: 3vh;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-size: 4vw;
+    }
+    #moneyCount{
+        position: absolute;
+        top: 3vh;
+        right: 3vh;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-size: 4vw;
+    }
+</style>
+</head>
+<body>
+    <div id="spongebob"></div>
+    <div id="floor"></div>
+    <div id="jumpCount"></div>
+    <div id="moneyCount"></div>
+<script>
+    //variables declared here ↓
+    const floor = document.getElementById("floor");
+    const spongebob = document.getElementById("spongebob");
+    const gravity = 0.023;
+    const jumpStrength = 1;
+    const jumpSound = new Audio("spongebob.mp3");
+    const spongebobHeight = parseFloat(window.getComputedStyle(spongebob).height);
+    const spongebobWidth = parseFloat(window.getComputedStyle(spongebob).width);
+    var floorY = parseFloat(window.getComputedStyle(floor).top) / window.innerHeight * 100;
+    var upHeld = false;
+    var leftHeld = false;
+    var rightHeld = false;
+    var framecount = 0;
+    var spongebobY = parseFloat(window.getComputedStyle(spongebob).top);
+    var spongebobSpeedY = 0;
+    var spongebobX = parseFloat(window.getComputedStyle(spongebob).left);
+    var spongebobSpeedX = 0.12;
+    var spongebobOnGround = true;
+    var spongebobOnRightWall = false;
+    var spongebobOnLeftWall = false;
+    var jumpCount = 0;
+    var jumpCountAllEver = parseFloat(localStorage.getItem("jumpCountAllEver")) || 0;
+    var money = 0;
+    var moneyGainPerJump = 1;
+    //variables declared here ↑
+    
+    //detects buttons you press
+    window.addEventListener("keydown", keypress);
+    window.addEventListener("keyup", keyrelease);
+    function keypress(e){
+         if(e.key === "ArrowUp"){
+            upHeld = true;
+        }
+        if(e.key === "ArrowLeft"){
+            leftHeld = true;
+        }
+        if(e.key === "ArrowRight"){
+            rightHeld = true;
+        }
+    }
+    function keyrelease(e){
+        if(e.key === "ArrowUp"){
+            upHeld = false;
+        }
+        if(e.key === "ArrowLeft"){
+            leftHeld = false;
+        }
+        if(e.key === "ArrowRight"){
+            rightHeld = false;
+        }
+    }
+
+
+    //new frame every 4 miliseconds
+    setInterval(frame, 4)
+
+    function frame(){
+        console.log(spongebobHeight)
+        physics();
+        framecount++;
+        render();
+    }
+
+    function physics(){
+        //gravity
+        spongebobSpeedY += gravity;
+        spongebobY += spongebobSpeedY;
+
+        //floor collision
+        if(spongebobY >= floorY - 15){
+            spongebobOnGround = true;
+            spongebobSpeedY = 0;
+            spongebobY = floorY - 15;
+        }else{
+            spongebobOnGround = false;
+        }
+
+        //wall collision
+        if(spongebobX >= 93){
+            spongebobOnRightWall = true;
+            spongebobX = 93;
+        }else{
+            spongebobOnRightWall = false;
+        }
+        if(spongebobX <= 0){
+            spongebobOnLeftWall = true;
+            spongebobX = 0;
+        }else{
+            spongebobOnLeftWall = false;
+        }
+
+        //jump
+        if(upHeld && spongebobOnGround){
+            jumpCount++;
+            jumpCountAllEver++;
+            spongebobSpeedY = jumpStrength * -1;
+            Sound("jump");
+            localStorage.setItem("jumpCountAllEver", jumpCountAllEver)
+            money += moneyGainPerJump;
+        }
+
+        //run left
+        if(leftHeld && !spongebobOnLeftWall){
+            spongebobX -= spongebobSpeedX;
+        }
+
+        //run right
+        if(rightHeld && !spongebobOnRightWall){
+            spongebobX += spongebobSpeedX;
+        }
+    }
+
+    function Sound(sound){
+        if(sound === "jump"){
+        jumpSound.currentTime = 0;
+        jumpSound.play()
+        }
+    }
+
+    function render(){
+        //render spongebob
+        spongebob.style.top = spongebobY + "vh";
+        spongebob.style.left = spongebobX + "vw";
+
+        document.getElementById("jumpCount").textContent = "Jumps: " + jumpCount;
+        document.getElementById("moneyCount").textContent = "Money: " + money;
+    }
+</script>
+</body>
+</html>
