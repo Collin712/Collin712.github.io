@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spongebob Jump</title>
+    <link rel="icon" type="image/x-icon" href="spongebob.png">
+<style>
+    body{
+        margin: 0;
+        padding: 0;
+        background-color: cornflowerblue;
+        overflow-y: hidden;
+        overflow-x: hidden;
+        font-family: fantasy;
+        user-select: none;
+    }
+    #floor{
+        position: absolute;
+        top: 85vh;
+        width: 100vw;
+        height: 15vh;
+        background-color: black;
+        box-sizing: border-box;
+        border-top: 1vh solid white;
+    }
+    #spongebob{
+        position: absolute;
+        background-image: url(spongebob.png);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        width: 20vh;
+        height: 20vh;
+        top: 70vh;
+        left: 50vw;
+        transform: translateX(-50%);
+    }
+    #jumpCount{
+        position: absolute;
+        top: 3vh;
+        left: 3vh;
+        color: black;
+        font-size: 4vw;
+    }
+    #timeCount{
+        position: absolute;
+        top: 3vh;
+        right: 3vh;
+        color: black;
+        font-size: 4vw;
+    }
+</style>
+</head>
+<body>
+    <div id="spongebob"></div>
+    <div id="floor"></div>
+    <div id="jumpCount"></div>
+    <div id="timeCount"></div>
+<script>
+    //variables declared here ↓
+    const floor = document.getElementById("floor");
+    const spongebob = document.getElementById("spongebob");
+    const gravity = 0.023;
+    const jumpStrength = 1.2;
+    const laughSound = new Audio("spongebob.mp3");
+    var floorY = parseInt(window.getComputedStyle(floor).top) / window.innerHeight * 100;
+    var isClicking = false;
+    var framecount = 0;
+    var spongebobY = parseInt(window.getComputedStyle(spongebob).top);
+    var spongebobSpeedY = 0;
+    var spongebobOnGround = true;
+    var jumpCount = parseInt(localStorage.getItem("jumpCount")) || 0;
+    var timeCount = parseInt(localStorage.getItem("timeCount")) || 0;
+    //variables declared here ↑
+    
+    //detects if you are tapping the screen / clicking
+    window.addEventListener("mousedown", () => isClicking = true);
+    window.addEventListener("touchstart", () => isClicking = true);
+    window.addEventListener("mouseup", () => isClicking = false);
+    window.addEventListener("touchend", () => isClicking = false);
+
+    //new frame every 4 miliseconds
+    setInterval(frame, 4)
+
+    //update timer every second
+    setInterval(timer, 1000)
+
+    function frame(){
+        physics();
+        framecount++;
+        render();
+    }
+
+    function timer(){
+        timeCount++;
+        localStorage.setItem("timeCount", timeCount)
+    }
+
+    function physics(){
+        //gravity
+        spongebobSpeedY = spongebobSpeedY + gravity;
+        spongebobY = spongebobY + spongebobSpeedY;
+
+        //floor collision
+        if(spongebobY >= floorY - 20){
+            spongebobOnGround = true;
+            spongebobSpeedY = 0;
+            spongebobY = floorY - 20;
+        }else{
+            spongebobOnGround = false;
+        }
+
+        //jump
+        if(isClicking && spongebobOnGround){
+            jumpCount++;
+            spongebobSpeedY = jumpStrength * -1;
+            laugh();
+            localStorage.setItem("jumpCount", jumpCount)
+        }
+    }
+
+    function laugh(){
+        laughSound.currentTime = 0;
+        laughSound.play()
+    }
+
+    function render(){
+        spongebob.style.top = spongebobY + "vh";
+        document.getElementById("jumpCount").textContent = "Jumps: " + jumpCount;
+        document.getElementById("timeCount").textContent = "Seconds Played: " + timeCount;
+    }
+</script>
+</body>
+</html>
