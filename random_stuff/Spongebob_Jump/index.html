@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spongebob Jump</title>
-    <link rel="icon" type="image/x-icon" href="spongebob.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="preload" as="image" href="spongebob.png">
     <link rel="preload" as="image" href="hat.png">
     <link rel="preload" as="image" href="spongebobRunLeft.png">
@@ -13,6 +13,7 @@
     <link rel="preload" as="image" href="jetpackOn.png">
     <link rel="preload" as="audio" href="spongebob.mp3">
     <link rel="preload" as="audio" href="jetpack.mp3">
+    <link rel="preload" as="audio" href="money.mp3">
 <style>
     body{
         margin: 0;
@@ -189,8 +190,8 @@
         <button id="resumeButton" onclick="pause()">Resume</button>
         <button id="storeButton" onclick="storeOpen()">Upgrades</button>
         <div id="storeMenu">
-            <button class="storeBuyButton" id="buyHat" onclick="buyHatFunc(); render();">Buy Hat (30$)</button>
-            <button class="storeBuyButton" id="buyJetpack" onclick="buyJetpackFunc(); render();">Buy Jetpack (100$)</button>
+            <button class="storeBuyButton" id="buyHat" onclick="buyHatFunc(); render(); Sound('money')">Buy Hat (30$)</button>
+            <button class="storeBuyButton" id="buyJetpack" onclick="buyJetpackFunc(); render(); Sound('money')">Buy Jetpack (100$)</button>
         </div>
     </div>
     <div id="jumpCountDisplay"></div>
@@ -217,6 +218,7 @@
     const jumpStrength = 0.3;
     const jumpSound = new Audio("spongebob.mp3");
     const jetpackSound = new Audio("jetpack.mp3");
+    const moneySound = new Audio("money.mp3");
     const floorY = parseFloat(getComputedStyle(floor).top) / window.innerWidth * 100;
     const spongebobSpeedYCap = 0.3;
     var gravity = 0.006;
@@ -388,6 +390,10 @@
             jetpackSound.play()
             jetpackSound.volume = 0.5;
             jetpackSound.loop = true;
+        }
+        if(sound === "money"){
+            moneySound.play()
+            moneySound.volume = 0.5;
         }
     }
 
