@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spongebob Jump</title>
     <link rel="icon" type="image/x-icon" href="spongebob.png">
+    <link rel="preload" as="image" href="spongebob.png">
+    <link rel="preload" as="image" href="hat.png">
+    <link rel="preload" as="image" href="spongebobRunLeft.png">
+    <link rel="preload" as="image" href="spongebobRunRight.png">
+    <link rel="preload" as="image" href="jetpackOff.png">
+    <link rel="preload" as="image" href="jetpackOn.png">
+    <link rel="preload" as="audio" href="spongebob.mp3">
+    <link rel="preload" as="audio" href="jetpack.mp3">
 <style>
     body{
         margin: 0;
         padding: 0;
-        background-color: cornflowerblue;
+        background-color: aquamarine;
+        background-image: url(background.jpg);
+        background-size: cover;
         overflow-y: hidden;
         overflow-x: hidden;
         font-family: fantasy;
@@ -20,22 +30,20 @@
         top: 40vw;
         width: 100%;
         height: 100%;
-        background-color: black;
+        background-color: rgb(180, 150, 110);
         box-sizing: border-box;
         border-top: 0.5vw solid white;
     }
     #spongebob{
         position: absolute;
         background-image: url(spongebob.png);
-        background-size: cover;
+        background-size: 100% 100%;
         background-repeat: no-repeat;
         background-position: center;
         width: 5vw;
         height: 7vw;
-        top: 33vw;
-        left: 42vw;
     }
-    #jumpCount{
+    #jumpCountDisplay{
         position: absolute;
         top: 3vh;
         left: 3vh;
@@ -43,46 +51,222 @@
         -webkit-text-stroke: 0.1vw white;
         font-size: 4vw;
     }
-    #moneyCount{
+    #moneyCountDisplay{
         position: absolute;
         top: 3vh;
         right: 3vh;
+        color: green;
+        -webkit-text-stroke: 0.1vw white;
+        font-size: 4vw;
+    }
+    #hat{
+        position: absolute;
+        background-image: url(hat.png);
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-position: center;
+        top: -100vw;
+        left: -100vw;
+        width: 5vw;
+        height: 2.5vw;
+    }
+    #pauseMenu{
+        position: absolute;
+        height: 100vh;
+        width: 100vw;
+        visibility: hidden;
+        background-color: rgba(100, 100, 100, 0.8);
+    }
+    #jumpCountAllEverDisplay{
+        visibility: hidden;
+        position: fixed;
+        top: 3vh;
+        width: 100vw;
+        text-align: center;
         color: black;
         -webkit-text-stroke: 0.1vw white;
         font-size: 4vw;
     }
+    #pausedWarning{
+        top: 15vh;
+        width: 100vw;
+        position: fixed;
+        text-align: center;
+        visibility: inherit;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-size: 9vw;
+    }
+    #resumeButton{
+        top: 45vh;
+        left: 37.5vw;
+        width: 25vw;
+        height: 20vh;
+        position: fixed;
+        text-align: center;
+        align-content: center;
+        align-items: center;
+        visibility: inherit;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-size: 6vw;
+        font-family: inherit;
+        background-color: black;
+        border-color: white;
+        border-width: 0.2vw;
+        border-style: solid;
+    }
+    #storeButton{
+        top: 70vh;
+        left: 37.5vw;
+        width: 25vw;
+        height: 20vh;
+        position: fixed;
+        text-align: center;
+        align-content: center;
+        align-items: center;
+        visibility: inherit;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-size: 6vw;
+        font-family: inherit;
+        background-color: black;
+        border-color: white;
+        border-width: 0.2vw;
+        border-style: solid;
+    }
+    #storeMenu{
+        top: 15vh;
+        right: 3.75vw;
+        width: 30vw;
+        height: 80vh;
+        position: fixed;
+        text-align: center;
+        visibility: hidden;
+        border-style: solid;
+        background-color: black;
+        border-width: 0.2vw;
+        border-color: white;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-size: 4vw;
+    }
+    #jetpack{
+        position: absolute;
+        background-image: url(jetpackOff.png);
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-position: center;
+        top: -100vw;
+        left: -100vw;
+        width: 5vw;
+        height: 13vw;
+    }
+    .storeBuyButton{
+        height: 4vw;
+        width: 90%;
+        border-style: solid;
+        background-color: red;
+        border-width: 0.2vw;
+        border-color: white;
+        color: red;
+        -webkit-text-stroke: 0.1vw white;
+        text-align: center;
+        align-items: center;
+        align-content: center;
+        flex-direction: column;
+        font-size: 3vw;
+    }
 </style>
 </head>
 <body>
+    <div id="jetpack"></div>
     <div id="spongebob"></div>
     <div id="floor"></div>
-    <div id="jumpCount"></div>
-    <div id="moneyCount"></div>
+    <div id="hat"></div>
+    <div id="pauseMenu">
+        <div id="pausedWarning">PAUSED</div>
+        <button id="resumeButton" onclick="pause()">Resume</button>
+        <button id="storeButton" onclick="storeOpen()">Upgrades</button>
+        <div id="storeMenu">
+            <button class="storeBuyButton" id="buyHat" onclick="buyHatFunc(); render();">Buy Hat (30$)</button>
+            <button class="storeBuyButton" id="buyJetpack" onclick="buyJetpackFunc(); render();">Buy Jetpack (100$)</button>
+        </div>
+    </div>
+    <div id="jumpCountDisplay"></div>
+    <div id="moneyCountDisplay"></div>
+    <div id="jumpCountAllEverDisplay"></div>
 <script>
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if(isMobile){
+        alert("This game doesn't work right on mobile right now")
+    }
+
     //variables declared here ↓
     const floor = document.getElementById("floor");
     const spongebob = document.getElementById("spongebob");
-    const gravity = 0.01;
-    const jumpStrength = 0.45;
+    const pauseMenu = document.getElementById("pauseMenu");
+    const hat = document.getElementById("hat");
+    const jetpack = document.getElementById("jetpack");
+    const jumpCountAllEverDisplay = document.getElementById("jumpCountAllEverDisplay");
+    const jumpCountDisplay = document.getElementById("jumpCountDisplay");
+    const moneyCountDisplay = document.getElementById("moneyCountDisplay");
+    const storeMenu = document.getElementById("storeMenu");
+    const buyHat = document.getElementById("buyHat");
+    const buyJetpack = document.getElementById("buyJetpack");
+    const jumpStrength = 0.3;
     const jumpSound = new Audio("spongebob.mp3");
-    var floorY = 40;
+    const jetpackSound = new Audio("jetpack.mp3");
+    const floorY = parseFloat(getComputedStyle(floor).top) / window.innerWidth * 100;
+    const spongebobSpeedYCap = 0.3;
+    var gravity = 0.006;
+    var jetpackStrength = gravity * 2;
+    var gameInterval = setInterval(frame, 4);
+    var paused = false;
+    var StoreIsOpen = false;
     var upHeld = false;
     var leftHeld = false;
     var rightHeld = false;
+    var downHeld = false;
     var framecount = 0;
-    var spongebobY = parseFloat(window.getComputedStyle(spongebob).top);
+    var spongebobHeight = parseFloat(getComputedStyle(spongebob).height) / window.innerWidth * 100;
+    var spongebobWidth = parseFloat(getComputedStyle(spongebob).width) / window.innerWidth * 100;
+    var spongebobY = floorY - spongebobHeight;
     var spongebobSpeedY = 0;
-    var spongebobX = parseFloat(window.getComputedStyle(spongebob).left);
-    var spongebobSpeedX = 0.12;
+    var spongebobX = 50 - spongebobWidth;
+    var spongebobSpeedX = 0.11;
     var spongebobOnGround = true;
     var spongebobOnRightWall = false;
     var spongebobOnLeftWall = false;
     var jumpCount = 0;
     var jumpCountAllEver = parseFloat(localStorage.getItem("jumpCountAllEver")) || 0;
-    var money = 0;
+    var moneyCount = 0;
     var moneyGainPerJump = 1;
+    var hatOwned = false;
+    var jetpackOwned = false;
+    var runningLeft = false;
+    var runningRight = false;
     //variables declared here ↑
-    
+
+    //pause game
+    function pause(){
+        jumpCountAllEverDisplay.textContent = "Total Jumps: " + jumpCountAllEver;
+        if(!paused){
+            clearInterval(gameInterval);
+            paused = true;
+            pauseMenu.style.visibility = "visible";
+            jumpCountAllEverDisplay.style.visibility = "visible";
+            stopAllSounds();
+        }else{
+            gameInterval = setInterval(frame, 4);
+            paused = false;
+            pauseMenu.style.visibility = "hidden";
+            jumpCountAllEverDisplay.style.visibility = "hidden";
+            storeMenu.style.visibility = "hidden";
+            StoreIsOpen = false;
+        }
+    }
+
     //detects buttons you press
     window.addEventListener("keydown", keypress);
     window.addEventListener("keyup", keyrelease);
@@ -96,6 +280,13 @@
         if(e.key === "ArrowRight"){
             rightHeld = true;
         }
+        if(e.key === "ArrowDown"){
+            downHeld = true;
+            if(jetpackOwned){Sound("jetpack")};
+        }
+        if(e.key === "Escape"){
+            pause()
+        }
     }
     function keyrelease(e){
         if(e.key === "ArrowUp"){
@@ -107,11 +298,11 @@
         if(e.key === "ArrowRight"){
             rightHeld = false;
         }
+        if(e.key === "ArrowDown"){
+            downHeld = false;
+            {jetpackSound.pause()};
+        }
     }
-
-
-    //new frame every 4 miliseconds
-    setInterval(frame, 4)
 
     function frame(){
         physics();
@@ -125,18 +316,18 @@
         spongebobY += spongebobSpeedY;
 
         //floor collision
-        if(spongebobY >= floorY - 7){
+        if(spongebobY >= floorY - spongebobHeight){
             spongebobOnGround = true;
             spongebobSpeedY = 0;
-            spongebobY = floorY - 7;
+            spongebobY = floorY - spongebobHeight;
         }else{
             spongebobOnGround = false;
         }
 
         //wall collision
-        if(spongebobX >= 95){
+        if(spongebobX >= 100 - spongebobWidth){
             spongebobOnRightWall = true;
-            spongebobX = 95;
+            spongebobX = 100 - spongebobWidth;
         }else{
             spongebobOnRightWall = false;
         }
@@ -147,6 +338,12 @@
             spongebobOnLeftWall = false;
         }
 
+        //ceiling collision
+        if(spongebobY <= 0){
+            spongebobSpeedY = 0;
+            spongebobY = 0;
+        }
+
         //jump
         if(upHeld && spongebobOnGround){
             jumpCount++;
@@ -154,24 +351,58 @@
             spongebobSpeedY = jumpStrength * -1;
             Sound("jump");
             localStorage.setItem("jumpCountAllEver", jumpCountAllEver)
-            money += moneyGainPerJump;
+            moneyCount += moneyGainPerJump;
         }
 
         //run left
         if(leftHeld && !spongebobOnLeftWall){
             spongebobX -= spongebobSpeedX;
+            runningLeft = true;
         }
 
         //run right
         if(rightHeld && !spongebobOnRightWall){
             spongebobX += spongebobSpeedX;
+            runningRight = true;
+        }
+
+        //change running condition
+        if(!leftHeld){runningLeft = false};
+        if(!rightHeld){runningRight = false};
+
+        //jetpack
+        if(jetpackOwned && downHeld){
+            spongebobSpeedY -= jetpackStrength;
+            if(spongebobSpeedY <= spongebobSpeedYCap * -1){spongebobSpeedY = spongebobSpeedYCap * -1}
         }
     }
 
     function Sound(sound){
+        //jump sound
         if(sound === "jump"){
-        jumpSound.currentTime = 0;
-        jumpSound.play()
+            jumpSound.currentTime = 0;
+            jumpSound.play()
+            jumpSound.volume = 0.5;
+        }
+        if(sound === "jetpack"){
+            jetpackSound.play()
+            jetpackSound.volume = 0.5;
+            jetpackSound.loop = true;
+        }
+    }
+
+    function stopAllSounds() {
+        jumpSound.pause();
+        jetpackSound.pause();
+    };
+
+    function storeOpen(){
+        if(!StoreIsOpen){
+            storeMenu.style.visibility = "visible";
+            StoreIsOpen = true;
+        }else{
+            storeMenu.style.visibility = "hidden";
+            StoreIsOpen = false;
         }
     }
 
@@ -179,9 +410,35 @@
         //render spongebob
         spongebob.style.top = spongebobY + "vw";
         spongebob.style.left = spongebobX + "vw";
+        if(runningLeft){spongebob.style.backgroundImage = "url(spongebobRunLeft.png)"};
+        if(runningRight){spongebob.style.backgroundImage = "url(spongebobRunRight.png)"};
+        if(!runningLeft && !runningRight){spongebob.style.backgroundImage = "url(spongebob.png)"}
+        if(spongebobOnLeftWall || spongebobOnRightWall){spongebob.style.backgroundImage = "url(spongebob.png)"}
+        //render accessories
+        if(hatOwned){hat.style.top = spongebobY - 1.5 + "vw"; hat.style.left = spongebobX - 0.2 + "vw"};
+        if(jetpackOwned){jetpack.style.top = spongebobY + "vw"; jetpack.style.left = spongebobX + "vw" ; if(downHeld){jetpack.style.backgroundImage = "url(jetpackOn.png)";}else{jetpack.style.backgroundImage = "url(jetpackOff.png)";}};
+        //render hud
+        jumpCountDisplay.textContent = "Jumps: " + jumpCount;
+        moneyCountDisplay.textContent = "Money: " + moneyCount + "$";
+        //render store buttons
+        if(moneyCount >= 30){buyHat.style.backgroundColor = "green"; buyHat.style.color = "green";}else{buyHat.style.backgroundColor = "red"; buyHat.style.color = "red";}
+        if(moneyCount >= 100){buyJetpack.style.backgroundColor = "green"; buyJetpack.style.color = "green";}else{buyJetpack.style.backgroundColor = "red"; buyJetpack.style.color = "red";}
+    }
 
-        document.getElementById("jumpCount").textContent = "Jumps: " + jumpCount;
-        document.getElementById("moneyCount").textContent = "Money: " + money;
+    function buyHatFunc(){
+        if(moneyCount >= 30){
+            moneyCount -= 30;
+            hatOwned = true;
+            buyHat.style.display = "none";
+        }
+    }
+
+    function buyJetpackFunc(){
+        if(moneyCount >= 100){
+            moneyCount -= 100;
+            jetpackOwned = true;
+            buyJetpack.style.display = "none";
+        }
     }
 </script>
 </body>
