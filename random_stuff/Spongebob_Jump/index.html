@@ -11,6 +11,8 @@
     <link rel="preload" as="image" href="spongebobRunRight.png">
     <link rel="preload" as="image" href="jetpackOff.png">
     <link rel="preload" as="image" href="jetpackOn.png">
+    <link rel="preload" as="image" href="richbob.png">
+    <link rel="preload" as="image" href="richhat.png">
     <link rel="preload" as="audio" href="spongebob.mp3">
     <link rel="preload" as="audio" href="jetpack.mp3">
     <link rel="preload" as="audio" href="money.mp3">
@@ -164,7 +166,7 @@
         height: 13vw;
     }
     .storeBuyButton{
-        height: 4vw;
+        height: 3vw;
         width: 90%;
         border-style: solid;
         background-color: red;
@@ -176,7 +178,16 @@
         align-items: center;
         align-content: center;
         flex-direction: column;
-        font-size: 3vw;
+        font-size: 1.5vw;
+    }
+    #loadingWarning{
+        position: fixed;
+        top: 10vh;
+        width: 100vw;
+        text-align: center;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-size: 10vw;
     }
 </style>
 </head>
@@ -190,17 +201,23 @@
         <button id="resumeButton" onclick="pause()">Resume</button>
         <button id="storeButton" onclick="storeOpen()">Upgrades</button>
         <div id="storeMenu">
-            <button class="storeBuyButton" id="buyHat" onclick="buyHatFunc(); render(); Sound('money')">Buy Hat (30$)</button>
-            <button class="storeBuyButton" id="buyJetpack" onclick="buyJetpackFunc(); render(); Sound('money')">Buy Jetpack (100$)</button>
+            <button class="storeBuyButton" id="buyHat" onclick="buyHatFunc(); render();">Buy Hat (30$)</button>
+            <button class="storeBuyButton" id="buyJetpack" onclick="buyJetpackFunc(); render();">Buy Jetpack (100$)</button>
+            <button class="storeBuyButton" id="buyDoubleSpeed" onclick="buyDoubleSpeedFunc(); render();">Buy Double Speed (150$)</button>
+            <button class="storeBuyButton" id="buySecondDoubleSpeed" onclick="buySecondDoubleSpeedFunc(); render();">Buy Another Double Speed (200$)</button>
+            <button class="storeBuyButton" id="buyDoubleMoney" onclick="buyDoubleMoneyFunc(); render();">Buy Double Money (300$)</button>
+            <button class="storeBuyButton" id="buyDoubleGravity" onclick="buyDoubleGravityFunc(); render();">Buy Double Gravity (500$)</button>
+            <button class="storeBuyButton" id="buyRichBob" onclick="buyRichBobFunc(); render();">Buy RichBob (1,000$)</button>
         </div>
     </div>
     <div id="jumpCountDisplay"></div>
     <div id="moneyCountDisplay"></div>
     <div id="jumpCountAllEverDisplay"></div>
+    <div id="loadingWarning">Loading...</div>
 <script>
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if(isMobile){
-        alert("This game doesn't work right on mobile right now")
+        alert("This game doesn't work right on mobile.")
     }
 
     //variables declared here ↓
@@ -215,6 +232,11 @@
     const storeMenu = document.getElementById("storeMenu");
     const buyHat = document.getElementById("buyHat");
     const buyJetpack = document.getElementById("buyJetpack");
+    const buyDoubleSpeed = document.getElementById("buyDoubleSpeed");
+    const buySecondDoubleSpeed = document.getElementById("buySecondDoubleSpeed");
+    const buyDoubleMoney = document.getElementById("buyDoubleMoney");
+    const buyDoubleGravity = document.getElementById("buyDoubleGravity");
+    const buyRichBob = document.getElementById("buyRichBob");
     const jumpStrength = 0.3;
     const jumpSound = new Audio("spongebob.mp3");
     const jetpackSound = new Audio("jetpack.mp3");
@@ -248,6 +270,7 @@
     var jetpackOwned = false;
     var runningLeft = false;
     var runningRight = false;
+    var richBobOwned = false;
     //variables declared here ↑
 
     //pause game
@@ -273,40 +296,47 @@
     window.addEventListener("keydown", keypress);
     window.addEventListener("keyup", keyrelease);
     function keypress(e){
-         if(e.key === "ArrowUp"){
-            upHeld = true;
-        }
-        if(e.key === "ArrowLeft"){
-            leftHeld = true;
-        }
-        if(e.key === "ArrowRight"){
-            rightHeld = true;
-        }
-        if(e.key === "ArrowDown"){
-            downHeld = true;
-            if(jetpackOwned){Sound("jetpack")};
-        }
-        if(e.key === "Escape"){
-            pause()
+        if(framecount > 250){
+            if(e.key === "ArrowUp"){
+                upHeld = true;
+            }
+            if(e.key === "ArrowLeft"){
+                leftHeld = true;
+            }
+            if(e.key === "ArrowRight"){
+                rightHeld = true;
+            }
+            if(e.key === "ArrowDown"){
+                downHeld = true;
+                if(jetpackOwned){Sound("jetpack")};
+            }
+            if(e.key === "Escape"){
+                pause()
+            }
         }
     }
     function keyrelease(e){
-        if(e.key === "ArrowUp"){
-            upHeld = false;
-        }
-        if(e.key === "ArrowLeft"){
-            leftHeld = false;
-        }
-        if(e.key === "ArrowRight"){
-            rightHeld = false;
-        }
-        if(e.key === "ArrowDown"){
-            downHeld = false;
-            {jetpackSound.pause()};
+        if(framecount > 250){
+            if(e.key === "ArrowUp"){
+                upHeld = false;
+            }
+            if(e.key === "ArrowLeft"){
+                leftHeld = false;
+            }
+            if(e.key === "ArrowRight"){
+                rightHeld = false;
+            }
+            if(e.key === "ArrowDown"){
+                downHeld = false;
+                {jetpackSound.pause()};
+            }
         }
     }
 
     function frame(){
+        if(framecount === 251){
+            alert("Controls: Esc to pause, Arrow Keys to move");
+        }
         physics();
         framecount++;
         render();
@@ -400,6 +430,7 @@
     function stopAllSounds() {
         jumpSound.pause();
         jetpackSound.pause();
+        moneySound.pause();
     };
 
     function storeOpen(){
@@ -418,24 +449,42 @@
         spongebob.style.left = spongebobX + "vw";
         if(runningLeft){spongebob.style.backgroundImage = "url(spongebobRunLeft.png)"};
         if(runningRight){spongebob.style.backgroundImage = "url(spongebobRunRight.png)"};
-        if(!runningLeft && !runningRight){spongebob.style.backgroundImage = "url(spongebob.png)"}
-        if(spongebobOnLeftWall || spongebobOnRightWall){spongebob.style.backgroundImage = "url(spongebob.png)"}
+        if(!runningLeft && !runningRight){spongebob.style.backgroundImage = "url(spongebob.png)"};
+        if(spongebobOnLeftWall || spongebobOnRightWall){spongebob.style.backgroundImage = "url(spongebob.png)"};
+        if(leftHeld && rightHeld){spongebob.style.backgroundImage = "url(spongebob.png)"};
         //render accessories
-        if(hatOwned){hat.style.top = spongebobY - 1.5 + "vw"; hat.style.left = spongebobX - 0.2 + "vw"};
-        if(jetpackOwned){jetpack.style.top = spongebobY + "vw"; jetpack.style.left = spongebobX + "vw" ; if(downHeld){jetpack.style.backgroundImage = "url(jetpackOn.png)";}else{jetpack.style.backgroundImage = "url(jetpackOff.png)";}};
+        if(hatOwned){hat.style.top = spongebobY - 1.5 + "vw"; hat.style.left = spongebobX + "vw"; hat.style.width = spongebob.style.width};
+        if(jetpackOwned){jetpack.style.top = spongebobY + "vw"; jetpack.style.left = spongebobX + "vw"; jetpack.style.width = spongebob.style.width; if(downHeld){jetpack.style.backgroundImage = "url(jetpackOn.png)";}else{jetpack.style.backgroundImage = "url(jetpackOff.png)";}};
+        if(richBobOwned){
+            if(!runningLeft && !runningRight){spongebob.style.backgroundImage = "url(richbob.png)"};
+            if(spongebobOnLeftWall || spongebobOnRightWall){spongebob.style.backgroundImage = "url(richbob.png)"};
+            if(leftHeld && rightHeld){spongebob.style.backgroundImage = "url(richbob.png)"};
+            hat.style.backgroundImage = "url(richhat.png)";
+        }
         //render hud
         jumpCountDisplay.textContent = "Jumps: " + jumpCount;
         moneyCountDisplay.textContent = "Money: " + moneyCount + "$";
         //render store buttons
         if(moneyCount >= 30){buyHat.style.backgroundColor = "green"; buyHat.style.color = "green";}else{buyHat.style.backgroundColor = "red"; buyHat.style.color = "red";}
         if(moneyCount >= 100){buyJetpack.style.backgroundColor = "green"; buyJetpack.style.color = "green";}else{buyJetpack.style.backgroundColor = "red"; buyJetpack.style.color = "red";}
+        if(moneyCount >= 150){buyDoubleSpeed.style.backgroundColor = "green"; buyDoubleSpeed.style.color = "green";}else{buyDoubleSpeed.style.backgroundColor = "red"; buyDoubleSpeed.style.color = "red";}
+        if(moneyCount >= 200){buySecondDoubleSpeed.style.backgroundColor = "green"; buySecondDoubleSpeed.style.color = "green";}else{buySecondDoubleSpeed.style.backgroundColor = "red"; buySecondDoubleSpeed.style.color = "red";}
+        if(moneyCount >= 300){buyDoubleMoney.style.backgroundColor = "green"; buyDoubleMoney.style.color = "green";}else{buyDoubleMoney.style.backgroundColor = "red"; buyDoubleMoney.style.color = "red";}
+        if(moneyCount >= 500){buyDoubleGravity.style.backgroundColor = "green"; buyDoubleGravity.style.color = "green";}else{buyDoubleGravity.style.backgroundColor = "red"; buyDoubleGravity.style.color = "red";}
+        if(moneyCount >= 1000){buyRichBob.style.backgroundColor = "green"; buyRichBob.style.color = "green";}else{buyRichBob.style.backgroundColor = "red"; buyRichBob.style.color = "red";}
+        //destroy loading warning
+        if(framecount > 250){
+            document.getElementById("loadingWarning").style.display = "none";
+        }
     }
 
+    //store buy buttons
     function buyHatFunc(){
         if(moneyCount >= 30){
             moneyCount -= 30;
             hatOwned = true;
             buyHat.style.display = "none";
+            Sound('money')
         }
     }
 
@@ -444,6 +493,53 @@
             moneyCount -= 100;
             jetpackOwned = true;
             buyJetpack.style.display = "none";
+            Sound('money')
+        }
+    }
+
+    function buyDoubleSpeedFunc(){
+        if(moneyCount >= 150){
+            moneyCount -= 150;
+            spongebobSpeedX *= 2;
+            buyDoubleSpeed.style.display = "none";
+            Sound('money')
+        }
+    }
+
+    function buySecondDoubleSpeedFunc(){
+        if(moneyCount >= 200){
+            moneyCount -= 200;
+            spongebobSpeedX *= 2;
+            buySecondDoubleSpeed.style.display = "none";
+            Sound('money')
+        }
+    }
+
+    function buyDoubleMoneyFunc(){
+        if(moneyCount >= 300){
+            moneyCount -= 300;
+            moneyGainPerJump *= 2;
+            buyDoubleMoney.style.display = "none";
+            Sound('money')
+        }
+    }
+
+    function buyDoubleGravityFunc(){
+        if(moneyCount >= 500){
+            moneyCount -= 500;
+            gravity *= 2;
+            jetpackStrength = gravity * 2;
+            buyDoubleGravity.style.display = "none";
+            Sound('money')
+        }
+    }
+
+    function buyRichBobFunc(){
+        if(moneyCount >= 1000){
+            moneyCount -= 1000;
+            richBobOwned = true;
+            buyRichBob.style.display = "none";
+            Sound('money')
         }
     }
 </script>
