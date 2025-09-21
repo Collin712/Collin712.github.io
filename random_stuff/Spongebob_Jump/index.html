@@ -13,14 +13,14 @@
     <link rel="preload" as="image" href="jetpackOn.png">
     <link rel="preload" as="image" href="richbob.png">
     <link rel="preload" as="image" href="richhat.png">
-    <link rel="preload" as="audio" href="spongebob.mp3">
-    <link rel="preload" as="audio" href="jetpack.mp3">
-    <link rel="preload" as="audio" href="money.mp3">
+    <link rel="preload" as="fetch" href="spongebob.mp3">
+    <link rel="preload" as="fetch" href="jetpack.mp3">
+    <link rel="preload" as="fetch" href="money.mp3">
 <style>
     body{
         margin: 0;
         padding: 0;
-        background-color: aquamarine;
+        background-color: aqua;
         background-image: url(background.jpg);
         background-size: cover;
         overflow-y: hidden;
@@ -201,13 +201,13 @@
         <button id="resumeButton" onclick="pause()">Resume</button>
         <button id="storeButton" onclick="storeOpen()">Upgrades</button>
         <div id="storeMenu">
-            <button class="storeBuyButton" id="buyHat" onclick="buyHatFunc(); render();">Buy Hat (30$)</button>
-            <button class="storeBuyButton" id="buyJetpack" onclick="buyJetpackFunc(); render();">Buy Jetpack (100$)</button>
-            <button class="storeBuyButton" id="buyDoubleSpeed" onclick="buyDoubleSpeedFunc(); render();">Buy Double Speed (150$)</button>
-            <button class="storeBuyButton" id="buySecondDoubleSpeed" onclick="buySecondDoubleSpeedFunc(); render();">Buy Another Double Speed (200$)</button>
-            <button class="storeBuyButton" id="buyDoubleMoney" onclick="buyDoubleMoneyFunc(); render();">Buy Double Money (300$)</button>
-            <button class="storeBuyButton" id="buyDoubleGravity" onclick="buyDoubleGravityFunc(); render();">Buy Double Gravity (500$)</button>
-            <button class="storeBuyButton" id="buyRichBob" onclick="buyRichBobFunc(); render();">Buy RichBob (1,000$)</button>
+            <button class="storeBuyButton" id="buyHat" onclick="buyHatFunc(); render();">Hat (30$)</button>
+            <button class="storeBuyButton" id="buyJetpack" onclick="buyJetpackFunc(); render();">Jetpack (100$)</button>
+            <button class="storeBuyButton" id="buyDoubleSpeed" onclick="buyDoubleSpeedFunc(); render();">Double Speed (150$)</button>
+            <button class="storeBuyButton" id="buySecondDoubleSpeed" onclick="buySecondDoubleSpeedFunc(); render();">Another Double Speed (200$)</button>
+            <button class="storeBuyButton" id="buyDoubleMoney" onclick="buyDoubleMoneyFunc(); render();">Double Money Gain (300$)</button>
+            <button class="storeBuyButton" id="buyDoubleGravity" onclick="buyDoubleGravityFunc(); render();">Double Gravity (500$)</button>
+            <button class="storeBuyButton" id="buyRichBob" onclick="buyRichBobFunc(); render();">RichBob (Also 10x Money) (1,000$)</button>
         </div>
     </div>
     <div id="jumpCountDisplay"></div>
@@ -417,11 +417,13 @@
             jumpSound.play()
             jumpSound.volume = 0.5;
         }
+        //jetpack sound
         if(sound === "jetpack"){
             jetpackSound.play()
             jetpackSound.volume = 0.5;
             jetpackSound.loop = true;
         }
+        //buy things sound
         if(sound === "money"){
             moneySound.play()
             moneySound.volume = 0.5;
@@ -429,6 +431,7 @@
     }
 
     function stopAllSounds() {
+        //this stops sounds when you pause the game
         jumpSound.pause();
         jetpackSound.pause();
         moneySound.pause();
@@ -473,7 +476,8 @@
         if(moneyCount >= 300){buyDoubleMoney.style.backgroundColor = "green"; buyDoubleMoney.style.color = "green";}else{buyDoubleMoney.style.backgroundColor = "red"; buyDoubleMoney.style.color = "red";}
         if(moneyCount >= 500){buyDoubleGravity.style.backgroundColor = "green"; buyDoubleGravity.style.color = "green";}else{buyDoubleGravity.style.backgroundColor = "red"; buyDoubleGravity.style.color = "red";}
         if(moneyCount >= 1000){buyRichBob.style.backgroundColor = "green"; buyRichBob.style.color = "green";}else{buyRichBob.style.backgroundColor = "red"; buyRichBob.style.color = "red";}
-        //destroy loading warning
+        //sometimes the game messes up when you hit buttons too early
+        //so i added a 1 second load time to fix this
         if(framecount > 250){
             document.getElementById("loadingWarning").style.display = "none";
         }
@@ -539,6 +543,7 @@
         if(moneyCount >= 1000){
             moneyCount -= 1000;
             richBobOwned = true;
+            moneyGainPerJump *= 10;
             buyRichBob.style.display = "none";
             Sound('money')
         }
