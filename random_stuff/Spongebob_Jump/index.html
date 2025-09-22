@@ -20,7 +20,6 @@
     body{
         margin: 0;
         padding: 0;
-        background-color: aqua;
         background-image: url(background.jpg);
         background-size: cover;
         overflow-y: hidden;
@@ -30,9 +29,9 @@
     }
     #floor{
         position: absolute;
-        top: 40vw;
-        width: 100%;
-        height: 100%;
+        top: 80vh;
+        width: 100vw;
+        height: 20vh;
         background-color: rgb(180, 150, 110);
         box-sizing: border-box;
         border-top: 0.5vw solid white;
@@ -112,7 +111,7 @@
         visibility: inherit;
         color: black;
         -webkit-text-stroke: 0.1vw white;
-        font-size: 6vw;
+        font-size: 5.5vw;
         font-family: inherit;
         background-color: black;
         border-color: white;
@@ -131,28 +130,12 @@
         visibility: inherit;
         color: black;
         -webkit-text-stroke: 0.1vw white;
-        font-size: 6vw;
+        font-size: 5.5vw;
         font-family: inherit;
         background-color: black;
         border-color: white;
         border-width: 0.2vw;
         border-style: solid;
-    }
-    #storeMenu{
-        top: 15vh;
-        right: 3.75vw;
-        width: 30vw;
-        height: 80vh;
-        position: fixed;
-        text-align: center;
-        visibility: hidden;
-        border-style: solid;
-        background-color: black;
-        border-width: 0.2vw;
-        border-color: white;
-        color: black;
-        -webkit-text-stroke: 0.1vw white;
-        font-size: 4vw;
     }
     #jetpack{
         position: absolute;
@@ -163,7 +146,25 @@
         top: -100vw;
         left: -100vw;
         width: 5vw;
-        height: 13vw;
+        height: 14vw;
+    }
+    #storeMenu{
+        top: 15vh;
+        right: 3.75vw;
+        width: 30vw;
+        height: 80vh;
+        position: fixed;
+        text-align: center;
+        flex-direction: column;
+        visibility: hidden;
+        border-style: solid;
+        background-color: black;
+        border-width: 0.2vw;
+        border-color: white;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-size: 4vw;
+        overflow: auto;
     }
     .storeBuyButton{
         height: 3vw;
@@ -174,50 +175,37 @@
         border-color: white;
         color: red;
         -webkit-text-stroke: 0.1vw white;
-        text-align: center;
-        align-items: center;
-        align-content: center;
-        flex-direction: column;
         font-size: 1.5vw;
-    }
-    #loadingWarning{
-        position: fixed;
-        top: 10vh;
-        width: 100vw;
-        text-align: center;
-        color: black;
-        -webkit-text-stroke: 0.1vw white;
-        font-size: 10vw;
     }
 </style>
 </head>
 <body>
     <div id="jetpack"></div>
     <div id="spongebob"></div>
-    <div id="floor"></div>
     <div id="hat"></div>
+    <div id="floor"></div>
     <div id="pauseMenu">
         <div id="pausedWarning">PAUSED</div>
         <button id="resumeButton" onclick="pause()">Resume</button>
-        <button id="storeButton" onclick="storeOpen()">Upgrades</button>
+        <button id="storeButton" onclick="if(StoreIsOpen){StoreIsOpen = false}else{StoreIsOpen = true}">Upgrades</button>
         <div id="storeMenu">
-            <button class="storeBuyButton" id="buyHat" onclick="buyHatFunc(); render();">Hat (30$)</button>
-            <button class="storeBuyButton" id="buyJetpack" onclick="buyJetpackFunc(); render();">Jetpack (100$)</button>
-            <button class="storeBuyButton" id="buyDoubleSpeed" onclick="buyDoubleSpeedFunc(); render();">Double Speed (150$)</button>
-            <button class="storeBuyButton" id="buySecondDoubleSpeed" onclick="buySecondDoubleSpeedFunc(); render();">Another Double Speed (200$)</button>
-            <button class="storeBuyButton" id="buyDoubleMoney" onclick="buyDoubleMoneyFunc(); render();">Double Money Gain (300$)</button>
-            <button class="storeBuyButton" id="buyDoubleGravity" onclick="buyDoubleGravityFunc(); render();">Double Gravity (500$)</button>
-            <button class="storeBuyButton" id="buyRichBob" onclick="buyRichBobFunc(); render();">RichBob (Also 10x Money) (1,000$)</button>
+            <button class="storeBuyButton" id="buyHat" onclick="buyHatFunc()">Hat (30$)</button>
+            <button class="storeBuyButton" id="buyJetpack" onclick="buyJetpackFunc()">Jetpack (100$)</button>
+            <button class="storeBuyButton" id="buyDoubleSpeed" onclick="buyDoubleSpeedFunc()">Double Speed (150$)</button>
+            <button class="storeBuyButton" id="buySecondDoubleSpeed" onclick="buySecondDoubleSpeedFunc()">Another Double Speed (200$)</button>
+            <button class="storeBuyButton" id="buyDoubleMoney" onclick="buyDoubleMoneyFunc()">Double Money Gain (300$)</button>
+            <button class="storeBuyButton" id="buyDoubleGravity" onclick="buyDoubleGravityFunc()">Double Gravity (500$)</button>
+            <button class="storeBuyButton" id="buyRichBob" onclick="buyRichBobFunc()">RichBob (Also 10x Money) (1,000$)</button>
         </div>
     </div>
     <div id="jumpCountDisplay"></div>
     <div id="moneyCountDisplay"></div>
     <div id="jumpCountAllEverDisplay"></div>
-    <div id="loadingWarning">Loading...</div>
 <script>
+    //im gonna make the game work on phones later
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if(isMobile){
-        alert("This game doesn't work right on mobile.")
+        alert("This game doesn't work right on mobile yet")
     }
 
     //variables declared here ↓
@@ -241,11 +229,10 @@
     const jumpSound = new Audio("spongebob.mp3");
     const jetpackSound = new Audio("jetpack.mp3");
     const moneySound = new Audio("money.mp3");
-    const floorY = parseFloat(getComputedStyle(floor).top) / window.innerWidth * 100;
     const spongebobSpeedYCap = 0.3;
+    var floorY = parseFloat(getComputedStyle(floor).top) / window.innerWidth * 100;
     var gravity = 0.006;
     var jetpackStrength = gravity * 2;
-    var gameInterval = setInterval(frame, 4);
     var paused = false;
     var StoreIsOpen = false;
     var upHeld = false;
@@ -273,17 +260,16 @@
     var richBobOwned = false;
     //variables declared here ↑
 
+    gameInterval = setInterval(frame, 4);
+
     //pause game
     function pause(){
-        jumpCountAllEverDisplay.textContent = "Total Jumps: " + jumpCountAllEver;
         if(!paused){
-            clearInterval(gameInterval);
             paused = true;
             pauseMenu.style.visibility = "visible";
             jumpCountAllEverDisplay.style.visibility = "visible";
             stopAllSounds();
         }else{
-            gameInterval = setInterval(frame, 4);
             paused = false;
             pauseMenu.style.visibility = "hidden";
             jumpCountAllEverDisplay.style.visibility = "hidden";
@@ -293,10 +279,11 @@
     }
 
     //detects buttons you press
-    window.addEventListener("keydown", keypress);
-    window.addEventListener("keyup", keyrelease);
+    document.addEventListener("DOMContentLoaded", () => { //only press buttons after everything is loaded
     function keypress(e){
-        if(framecount > 250){
+            if(e.key === "Escape"){
+                pause();
+            }
             if(e.key === "ArrowUp"){
                 upHeld = true;
             }
@@ -310,13 +297,8 @@
                 downHeld = true;
                 if(jetpackOwned){Sound("jetpack")};
             }
-            if(e.key === "Escape"){
-                pause()
-            }
         }
-    }
     function keyrelease(e){
-        if(framecount > 250){
             if(e.key === "ArrowUp"){
                 upHeld = false;
             }
@@ -330,15 +312,16 @@
                 downHeld = false;
                 {jetpackSound.pause()};
             }
-        }
     }
+    window.addEventListener("keydown", keypress);
+    window.addEventListener("keyup", keyrelease);
+    });
+
+    //reload the page when window resized to fix the floor height
+    window.addEventListener("resize", () => {window.location.reload(true)});
 
     function frame(){
-        if(framecount === 251){
-            alert("Controls: Esc to pause, Left and right arrow keys to run, Up arrow to jump, Down arrow for jetpack.");
-            pause();
-        }
-        physics();
+        if(!paused){physics()};
         framecount++;
         render();
     }
@@ -437,16 +420,6 @@
         moneySound.pause();
     };
 
-    function storeOpen(){
-        if(!StoreIsOpen){
-            storeMenu.style.visibility = "visible";
-            StoreIsOpen = true;
-        }else{
-            storeMenu.style.visibility = "hidden";
-            StoreIsOpen = false;
-        }
-    }
-
     function render(){
         //render spongebob
         spongebob.style.top = spongebobY + "vw";
@@ -457,8 +430,8 @@
         if(spongebobOnLeftWall || spongebobOnRightWall){spongebob.style.backgroundImage = "url(spongebob.png)"};
         if(leftHeld && rightHeld){spongebob.style.backgroundImage = "url(spongebob.png)"};
         //render accessories
-        if(hatOwned){hat.style.top = spongebobY - 1.5 + "vw"; hat.style.left = spongebobX + "vw"; hat.style.width = spongebob.style.width};
-        if(jetpackOwned){jetpack.style.top = spongebobY + "vw"; jetpack.style.left = spongebobX + "vw"; jetpack.style.width = spongebob.style.width; if(downHeld){jetpack.style.backgroundImage = "url(jetpackOn.png)";}else{jetpack.style.backgroundImage = "url(jetpackOff.png)";}};
+        if(hatOwned){hat.style.top = spongebobY - 1.5 + "vw"; hat.style.left = spongebobX + "vw"; hat.style.width = spongebobWidth + "vw"; hat.style.height = spongebobHeight * 0.35 + "vw";};
+        if(jetpackOwned){jetpack.style.top = spongebobY + "vw"; jetpack.style.left = spongebobX + "vw"; jetpack.style.width = spongebobWidth + "vw"; jetpack.style.height = spongebobHeight * 2 + "vw"; if(downHeld){jetpack.style.backgroundImage = "url(jetpackOn.png)";}else{jetpack.style.backgroundImage = "url(jetpackOff.png)";}};
         if(richBobOwned){
             if(!runningLeft && !runningRight){spongebob.style.backgroundImage = "url(richbob.png)"};
             if(spongebobOnLeftWall || spongebobOnRightWall){spongebob.style.backgroundImage = "url(richbob.png)"};
@@ -468,7 +441,10 @@
         //render hud
         jumpCountDisplay.textContent = "Jumps: " + jumpCount;
         moneyCountDisplay.textContent = "Money: " + moneyCount + "$";
-        //render store buttons
+        jumpCountAllEverDisplay.textContent = "Total Jumps: " + jumpCountAllEver;
+        //render store
+        if(StoreIsOpen){storeMenu.style.visibility = "visible"}
+        if(!StoreIsOpen){storeMenu.style.visibility = "hidden"}
         if(moneyCount >= 30){buyHat.style.backgroundColor = "green"; buyHat.style.color = "green";}else{buyHat.style.backgroundColor = "red"; buyHat.style.color = "red";}
         if(moneyCount >= 100){buyJetpack.style.backgroundColor = "green"; buyJetpack.style.color = "green";}else{buyJetpack.style.backgroundColor = "red"; buyJetpack.style.color = "red";}
         if(moneyCount >= 150){buyDoubleSpeed.style.backgroundColor = "green"; buyDoubleSpeed.style.color = "green";}else{buyDoubleSpeed.style.backgroundColor = "red"; buyDoubleSpeed.style.color = "red";}
@@ -476,11 +452,6 @@
         if(moneyCount >= 300){buyDoubleMoney.style.backgroundColor = "green"; buyDoubleMoney.style.color = "green";}else{buyDoubleMoney.style.backgroundColor = "red"; buyDoubleMoney.style.color = "red";}
         if(moneyCount >= 500){buyDoubleGravity.style.backgroundColor = "green"; buyDoubleGravity.style.color = "green";}else{buyDoubleGravity.style.backgroundColor = "red"; buyDoubleGravity.style.color = "red";}
         if(moneyCount >= 1000){buyRichBob.style.backgroundColor = "green"; buyRichBob.style.color = "green";}else{buyRichBob.style.backgroundColor = "red"; buyRichBob.style.color = "red";}
-        //sometimes the game messes up when you hit buttons too early
-        //so i added a 1 second load time to fix this
-        if(framecount > 250){
-            document.getElementById("loadingWarning").style.display = "none";
-        }
     }
 
     //store buy buttons
@@ -548,6 +519,7 @@
             Sound('money')
         }
     }
+
 </script>
 </body>
 </html>
