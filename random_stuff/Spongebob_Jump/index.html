@@ -42,8 +42,6 @@
         background-size: 100% 100%;
         background-repeat: no-repeat;
         background-position: center;
-        width: 5vw;
-        height: 7vw;
     }
     #jumpCountDisplay{
         position: absolute;
@@ -69,8 +67,6 @@
         background-position: center;
         top: -100vw;
         left: -100vw;
-        width: 5vw;
-        height: 2.5vw;
     }
     #pauseMenu{
         position: absolute;
@@ -145,8 +141,10 @@
         background-position: center;
         top: -100vw;
         left: -100vw;
-        width: 5vw;
-        height: 14vw;
+    }
+    #convertMoneyToJumps{
+        color: blue;
+        background-color: blue;
     }
     #storeMenu{
         top: 15vh;
@@ -166,7 +164,7 @@
         font-size: 4vw;
         overflow: auto;
     }
-    .storeBuyButton{
+    .storeMenuButton{
         height: 3vw;
         width: 90%;
         border-style: solid;
@@ -189,13 +187,14 @@
         <button id="resumeButton" onclick="pause()">Resume</button>
         <button id="storeButton" onclick="if(StoreIsOpen){StoreIsOpen = false}else{StoreIsOpen = true}">Upgrades</button>
         <div id="storeMenu">
-            <button class="storeBuyButton" id="buyHat" onclick="buyHatFunc()">Hat (30$)</button>
-            <button class="storeBuyButton" id="buyJetpack" onclick="buyJetpackFunc()">Jetpack (100$)</button>
-            <button class="storeBuyButton" id="buyDoubleSpeed" onclick="buyDoubleSpeedFunc()">Double Speed (150$)</button>
-            <button class="storeBuyButton" id="buySecondDoubleSpeed" onclick="buySecondDoubleSpeedFunc()">Another Double Speed (200$)</button>
-            <button class="storeBuyButton" id="buyDoubleMoney" onclick="buyDoubleMoneyFunc()">Double Money Gain (300$)</button>
-            <button class="storeBuyButton" id="buyDoubleGravity" onclick="buyDoubleGravityFunc()">Double Gravity (500$)</button>
-            <button class="storeBuyButton" id="buyRichBob" onclick="buyRichBobFunc()">RichBob (Also 10x Money) (1,000$)</button>
+            <button class="storeMenuButton" id="convertMoneyToJumps" onclick="convertMoneyToJumps()">Convert All Money To Jumps</button>
+            <button class="storeMenuButton" id="buyHat" onclick="buyHatFunc()">Hat (30$)</button>
+            <button class="storeMenuButton" id="buyJetpack" onclick="buyJetpackFunc()">Jetpack (100$)</button>
+            <button class="storeMenuButton" id="buyDoubleSpeed" onclick="buyDoubleSpeedFunc()">Double Speed (150$)</button>
+            <button class="storeMenuButton" id="buyTinyBob" onclick="buyTinyBobFunc()">Tiny Bob (200$)</button>
+            <button class="storeMenuButton" id="buyDoubleMoney" onclick="buyDoubleMoneyFunc()">Double Money Gain (300$)</button>
+            <button class="storeMenuButton" id="buyDoubleGravity" onclick="buyDoubleGravityFunc()">Double Gravity (500$)</button>
+            <button class="storeMenuButton" id="buyRichBob" onclick="buyRichBobFunc()">RichBob (Also 10x Money) (1,000$)</button>
         </div>
     </div>
     <div id="jumpCountDisplay"></div>
@@ -221,7 +220,7 @@
     const buyHat = document.getElementById("buyHat");
     const buyJetpack = document.getElementById("buyJetpack");
     const buyDoubleSpeed = document.getElementById("buyDoubleSpeed");
-    const buySecondDoubleSpeed = document.getElementById("buySecondDoubleSpeed");
+    const buyTinyBob = document.getElementById("buyTinyBob");
     const buyDoubleMoney = document.getElementById("buyDoubleMoney");
     const buyDoubleGravity = document.getElementById("buyDoubleGravity");
     const buyRichBob = document.getElementById("buyRichBob");
@@ -240,8 +239,8 @@
     var rightHeld = false;
     var downHeld = false;
     var framecount = 0;
-    var spongebobHeight = parseFloat(getComputedStyle(spongebob).height) / window.innerWidth * 100;
-    var spongebobWidth = parseFloat(getComputedStyle(spongebob).width) / window.innerWidth * 100;
+    var spongebobHeight = 7
+    var spongebobWidth = 5
     var spongebobY = floorY - spongebobHeight;
     var spongebobSpeedY = 0;
     var spongebobX = 50 - spongebobWidth;
@@ -366,7 +365,6 @@
             jumpCountAllEver++;
             spongebobSpeedY = jumpStrength * -1;
             Sound("jump");
-            localStorage.setItem("jumpCountAllEver", jumpCountAllEver)
             moneyCount += moneyGainPerJump;
         }
 
@@ -391,6 +389,7 @@
             spongebobSpeedY -= jetpackStrength;
             if(spongebobSpeedY <= spongebobSpeedYCap * -1){spongebobSpeedY = spongebobSpeedYCap * -1}
         }
+        localStorage.setItem("jumpCountAllEver", jumpCountAllEver);
     }
 
     function Sound(sound){
@@ -424,13 +423,15 @@
         //render spongebob
         spongebob.style.top = spongebobY + "vw";
         spongebob.style.left = spongebobX + "vw";
+        spongebob.style.width = spongebobWidth + "vw";
+        spongebob.style.height = spongebobHeight + "vw";
         if(runningLeft){spongebob.style.backgroundImage = "url(spongebobRunLeft.png)"};
         if(runningRight){spongebob.style.backgroundImage = "url(spongebobRunRight.png)"};
         if(!runningLeft && !runningRight){spongebob.style.backgroundImage = "url(spongebob.png)"};
         if(spongebobOnLeftWall || spongebobOnRightWall){spongebob.style.backgroundImage = "url(spongebob.png)"};
         if(leftHeld && rightHeld){spongebob.style.backgroundImage = "url(spongebob.png)"};
         //render accessories
-        if(hatOwned){hat.style.top = spongebobY - 1.5 + "vw"; hat.style.left = spongebobX + "vw"; hat.style.width = spongebobWidth + "vw"; hat.style.height = spongebobHeight * 0.35 + "vw";};
+        if(hatOwned){hat.style.top = spongebobY - (0.215 * spongebobHeight) + "vw"; hat.style.left = spongebobX + "vw"; hat.style.width = spongebobWidth + "vw"; hat.style.height = spongebobHeight * 0.35 + "vw";};
         if(jetpackOwned){jetpack.style.top = spongebobY + "vw"; jetpack.style.left = spongebobX + "vw"; jetpack.style.width = spongebobWidth + "vw"; jetpack.style.height = spongebobHeight * 2 + "vw"; if(downHeld){jetpack.style.backgroundImage = "url(jetpackOn.png)";}else{jetpack.style.backgroundImage = "url(jetpackOff.png)";}};
         if(richBobOwned){
             if(!runningLeft && !runningRight){spongebob.style.backgroundImage = "url(richbob.png)"};
@@ -448,7 +449,7 @@
         if(moneyCount >= 30){buyHat.style.backgroundColor = "green"; buyHat.style.color = "green";}else{buyHat.style.backgroundColor = "red"; buyHat.style.color = "red";}
         if(moneyCount >= 100){buyJetpack.style.backgroundColor = "green"; buyJetpack.style.color = "green";}else{buyJetpack.style.backgroundColor = "red"; buyJetpack.style.color = "red";}
         if(moneyCount >= 150){buyDoubleSpeed.style.backgroundColor = "green"; buyDoubleSpeed.style.color = "green";}else{buyDoubleSpeed.style.backgroundColor = "red"; buyDoubleSpeed.style.color = "red";}
-        if(moneyCount >= 200){buySecondDoubleSpeed.style.backgroundColor = "green"; buySecondDoubleSpeed.style.color = "green";}else{buySecondDoubleSpeed.style.backgroundColor = "red"; buySecondDoubleSpeed.style.color = "red";}
+        if(moneyCount >= 200){buyTinyBob.style.backgroundColor = "green"; buyTinyBob.style.color = "green";}else{buyTinyBob.style.backgroundColor = "red"; buyTinyBob.style.color = "red";}
         if(moneyCount >= 300){buyDoubleMoney.style.backgroundColor = "green"; buyDoubleMoney.style.color = "green";}else{buyDoubleMoney.style.backgroundColor = "red"; buyDoubleMoney.style.color = "red";}
         if(moneyCount >= 500){buyDoubleGravity.style.backgroundColor = "green"; buyDoubleGravity.style.color = "green";}else{buyDoubleGravity.style.backgroundColor = "red"; buyDoubleGravity.style.color = "red";}
         if(moneyCount >= 1000){buyRichBob.style.backgroundColor = "green"; buyRichBob.style.color = "green";}else{buyRichBob.style.backgroundColor = "red"; buyRichBob.style.color = "red";}
@@ -460,7 +461,7 @@
             moneyCount -= 30;
             hatOwned = true;
             buyHat.style.display = "none";
-            Sound('money')
+            Sound('money');
         }
     }
 
@@ -469,7 +470,7 @@
             moneyCount -= 100;
             jetpackOwned = true;
             buyJetpack.style.display = "none";
-            Sound('money')
+            Sound('money');
         }
     }
 
@@ -478,16 +479,18 @@
             moneyCount -= 150;
             spongebobSpeedX *= 2;
             buyDoubleSpeed.style.display = "none";
-            Sound('money')
+            Sound('money');
         }
     }
 
-    function buySecondDoubleSpeedFunc(){
+    function buyTinyBobFunc(){
         if(moneyCount >= 200){
             moneyCount -= 200;
-            spongebobSpeedX *= 2;
-            buySecondDoubleSpeed.style.display = "none";
-            Sound('money')
+            spongebobWidth *= 0.5;
+            spongebobHeight *= 0.5;
+            render();
+            buyTinyBob.style.display = "none";
+            Sound('money');
         }
     }
 
@@ -496,7 +499,7 @@
             moneyCount -= 300;
             moneyGainPerJump *= 2;
             buyDoubleMoney.style.display = "none";
-            Sound('money')
+            Sound('money');
         }
     }
 
@@ -506,7 +509,7 @@
             gravity *= 2;
             jetpackStrength = gravity * 2;
             buyDoubleGravity.style.display = "none";
-            Sound('money')
+            Sound('money');
         }
     }
 
@@ -516,10 +519,19 @@
             richBobOwned = true;
             moneyGainPerJump *= 10;
             buyRichBob.style.display = "none";
-            Sound('money')
+            Sound('money');
         }
     }
 
+    function convertMoneyToJumps(){
+        if(moneyCount > 0){
+            jumpCount += moneyCount;
+            jumpCountAllEver += moneyCount;
+            localStorage.setItem("jumpCountAllEver", jumpCountAllEver)
+            moneyCount = 0;
+            Sound('money')
+        }
+    }
 </script>
 </body>
 </html>
