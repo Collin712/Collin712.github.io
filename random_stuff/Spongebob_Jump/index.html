@@ -20,6 +20,7 @@
     body{
         margin: 0;
         padding: 0;
+        background-color: rgb(180, 150, 110);
         background-image: url(background.jpg);
         background-size: cover;
         overflow-y: hidden;
@@ -175,6 +176,59 @@
         -webkit-text-stroke: 0.1vw white;
         font-size: 1.5vw;
     }
+    #StartGameMenu{
+        position: fixed;
+        height: 100vh;
+        width: 100vw;
+        background-image: url(background.jpg);
+        background-size: cover;
+        -webkit-text-stroke: 0.1vw white;
+        color: black;
+        text-align: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    #gameTitle{
+        font-size: 20vh;
+    }
+    #startGameButton{
+        top: 40vh;
+        left: 35vw;
+        width: 30vw;
+        height: 20vh;
+        position: fixed;
+        text-align: center;
+        align-content: center;
+        align-items: center;
+        visibility: inherit;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-family: inherit;
+        background-color: black;
+        border-color: white;
+        border-width: 0.2vw;
+        border-style: solid;
+        font-size: 6vw;
+    }
+    #explainControls{
+        top: 65vh;
+        left: 25vw;
+        width: 50vw;
+        height: 30vh;
+        position: fixed;
+        text-align: center;
+        align-items: center;
+        visibility: inherit;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-family: inherit;
+        background-color: black;
+        border-color: white;
+        border-width: 0.2vw;
+        border-style: solid;
+        font-size: 4vh;
+        line-height: 0.1;
+    }
 </style>
 </head>
 <body>
@@ -199,87 +253,100 @@
     </div>
     <div id="jumpCountDisplay"></div>
     <div id="moneyCountDisplay"></div>
+    <div id="StartGameMenu">
+        <h1 id="gameTitle">Spongebob Jump</h1>
+        <button id="startGameButton" onclick="document.getElementById('StartGameMenu').style.display = 'none'; gameStarted = true;">Start Game</button>
+        <div id="explainControls">
+            <h1>Controls:</h1>
+            <p>Esc: Pause game</p>
+            <p>Left/Right Arrows: Run left/right</p>
+            <p>Up Arrow: Jump</p>
+            <p>Down Arrow: Jetpack</p>
+        </div>
+    </div>
     <div id="jumpCountAllEverDisplay"></div>
 <script>
-    //im gonna make the game work on phones later
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if(isMobile){
-        alert("This game doesn't work right on mobile yet")
+//im gonna make the game work on phones later
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+if(isMobile){
+    alert("This game doesn't work right on mobile yet")
+}
+
+//variables declared here ↓
+const floor = document.getElementById("floor");
+const spongebob = document.getElementById("spongebob");
+const pauseMenu = document.getElementById("pauseMenu");
+const hat = document.getElementById("hat");
+const jetpack = document.getElementById("jetpack");
+const jumpCountAllEverDisplay = document.getElementById("jumpCountAllEverDisplay");
+const jumpCountDisplay = document.getElementById("jumpCountDisplay");
+const moneyCountDisplay = document.getElementById("moneyCountDisplay");
+const storeMenu = document.getElementById("storeMenu");
+const buyHat = document.getElementById("buyHat");
+const buyJetpack = document.getElementById("buyJetpack");
+const buyDoubleSpeed = document.getElementById("buyDoubleSpeed");
+const buyTinyBob = document.getElementById("buyTinyBob");
+const buyDoubleMoney = document.getElementById("buyDoubleMoney");
+const buyDoubleGravity = document.getElementById("buyDoubleGravity");
+const buyRichBob = document.getElementById("buyRichBob");
+const jumpStrength = 0.3;
+const jumpSound = new Audio("spongebob.mp3");
+const jetpackSound = new Audio("jetpack.mp3");
+const moneySound = new Audio("money.mp3");
+const spongebobSpeedYCap = 0.3;
+var floorY = parseFloat(getComputedStyle(floor).top) / window.innerWidth * 100;
+var gravity = 0.006;
+var jetpackStrength = gravity * 2;
+var paused = false;
+var StoreIsOpen = false;
+var upHeld = false;
+var leftHeld = false;
+var rightHeld = false;
+var downHeld = false;
+var framecount = 0;
+var spongebobHeight = 7
+var spongebobWidth = 5
+var spongebobY = floorY - spongebobHeight;
+var spongebobSpeedY = 0;
+var spongebobX = 50 - spongebobWidth;
+var spongebobSpeedX = 0.11;
+var spongebobOnGround = true;
+var spongebobOnRightWall = false;
+var spongebobOnLeftWall = false;
+var jumpCount = 0;
+var jumpCountAllEver = parseFloat(localStorage.getItem("jumpCountAllEver")) || 0;
+var moneyCount = 0;
+var moneyGainPerJump = 1;
+var hatOwned = false;
+var jetpackOwned = false;
+var runningLeft = false;
+var runningRight = false;
+var richBobOwned = false;
+var gameStarted = false;
+//variables declared here ↑
+
+gameInterval = setInterval(frame, 4);
+
+//pause game
+function pause(){
+    if(!paused){
+        paused = true;
+        pauseMenu.style.visibility = "visible";
+        jumpCountAllEverDisplay.style.visibility = "visible";
+        stopAllSounds();
+    }else{
+        paused = false;
+        pauseMenu.style.visibility = "hidden";
+        jumpCountAllEverDisplay.style.visibility = "hidden";
+        storeMenu.style.visibility = "hidden";
+        StoreIsOpen = false;
     }
+}
 
-    //variables declared here ↓
-    const floor = document.getElementById("floor");
-    const spongebob = document.getElementById("spongebob");
-    const pauseMenu = document.getElementById("pauseMenu");
-    const hat = document.getElementById("hat");
-    const jetpack = document.getElementById("jetpack");
-    const jumpCountAllEverDisplay = document.getElementById("jumpCountAllEverDisplay");
-    const jumpCountDisplay = document.getElementById("jumpCountDisplay");
-    const moneyCountDisplay = document.getElementById("moneyCountDisplay");
-    const storeMenu = document.getElementById("storeMenu");
-    const buyHat = document.getElementById("buyHat");
-    const buyJetpack = document.getElementById("buyJetpack");
-    const buyDoubleSpeed = document.getElementById("buyDoubleSpeed");
-    const buyTinyBob = document.getElementById("buyTinyBob");
-    const buyDoubleMoney = document.getElementById("buyDoubleMoney");
-    const buyDoubleGravity = document.getElementById("buyDoubleGravity");
-    const buyRichBob = document.getElementById("buyRichBob");
-    const jumpStrength = 0.3;
-    const jumpSound = new Audio("spongebob.mp3");
-    const jetpackSound = new Audio("jetpack.mp3");
-    const moneySound = new Audio("money.mp3");
-    const spongebobSpeedYCap = 0.3;
-    var floorY = parseFloat(getComputedStyle(floor).top) / window.innerWidth * 100;
-    var gravity = 0.006;
-    var jetpackStrength = gravity * 2;
-    var paused = false;
-    var StoreIsOpen = false;
-    var upHeld = false;
-    var leftHeld = false;
-    var rightHeld = false;
-    var downHeld = false;
-    var framecount = 0;
-    var spongebobHeight = 7
-    var spongebobWidth = 5
-    var spongebobY = floorY - spongebobHeight;
-    var spongebobSpeedY = 0;
-    var spongebobX = 50 - spongebobWidth;
-    var spongebobSpeedX = 0.11;
-    var spongebobOnGround = true;
-    var spongebobOnRightWall = false;
-    var spongebobOnLeftWall = false;
-    var jumpCount = 0;
-    var jumpCountAllEver = parseFloat(localStorage.getItem("jumpCountAllEver")) || 0;
-    var moneyCount = 0;
-    var moneyGainPerJump = 1;
-    var hatOwned = false;
-    var jetpackOwned = false;
-    var runningLeft = false;
-    var runningRight = false;
-    var richBobOwned = false;
-    //variables declared here ↑
-
-    gameInterval = setInterval(frame, 4);
-
-    //pause game
-    function pause(){
-        if(!paused){
-            paused = true;
-            pauseMenu.style.visibility = "visible";
-            jumpCountAllEverDisplay.style.visibility = "visible";
-            stopAllSounds();
-        }else{
-            paused = false;
-            pauseMenu.style.visibility = "hidden";
-            jumpCountAllEverDisplay.style.visibility = "hidden";
-            storeMenu.style.visibility = "hidden";
-            StoreIsOpen = false;
-        }
-    }
-
-    //detects buttons you press
-    document.addEventListener("DOMContentLoaded", () => { //only press buttons after everything is loaded
+//detects buttons you press
+document.addEventListener("DOMContentLoaded", () => { //only press buttons after everything is loaded
     function keypress(e){
+        if(gameStarted){
             if(e.key === "Escape"){
                 pause();
             }
@@ -297,7 +364,9 @@
                 if(jetpackOwned){Sound("jetpack")};
             }
         }
+    }
     function keyrelease(e){
+        if(gameStarted){
             if(e.key === "ArrowUp"){
                 upHeld = false;
             }
@@ -311,227 +380,228 @@
                 downHeld = false;
                 {jetpackSound.pause()};
             }
+        }
     }
     window.addEventListener("keydown", keypress);
     window.addEventListener("keyup", keyrelease);
-    });
+});
 
-    //reload the page when window resized to fix the floor height
-    window.addEventListener("resize", () => {window.location.reload(true)});
+//reload the page when window resized to fix the floor height
+window.addEventListener("resize", () => {floorY = parseFloat(getComputedStyle(floor).top) / window.innerWidth * 100;});
 
-    function frame(){
-        if(!paused){physics()};
-        framecount++;
+function frame(){
+    if(!paused && gameStarted){physics()};
+    framecount++;
+    render();
+}
+
+function physics(){
+    //gravity
+    spongebobSpeedY += gravity;
+    spongebobY += spongebobSpeedY;
+
+    //floor collision
+    if(spongebobY >= floorY - spongebobHeight){
+        spongebobOnGround = true;
+        spongebobSpeedY = 0;
+        spongebobY = floorY - spongebobHeight;
+    }else{
+        spongebobOnGround = false;
+    }
+
+    //wall collision
+    if(spongebobX >= 100 - spongebobWidth){
+        spongebobOnRightWall = true;
+        spongebobX = 100 - spongebobWidth;
+    }else{
+        spongebobOnRightWall = false;
+    }
+    if(spongebobX <= 0){
+        spongebobOnLeftWall = true;
+        spongebobX = 0;
+    }else{
+        spongebobOnLeftWall = false;
+    }
+
+    //ceiling collision
+    if(spongebobY <= 0){
+        spongebobSpeedY = 0;
+        spongebobY = 0;
+    }
+
+    //jump
+    if(upHeld && spongebobOnGround){
+        jumpCount++;
+        jumpCountAllEver++;
+        spongebobSpeedY = jumpStrength * -1;
+        Sound("jump");
+        moneyCount += moneyGainPerJump;
+    }
+
+    //run left
+    if(leftHeld && !spongebobOnLeftWall){
+        spongebobX -= spongebobSpeedX;
+        runningLeft = true;
+    }
+
+    //run right
+    if(rightHeld && !spongebobOnRightWall){
+        spongebobX += spongebobSpeedX;
+        runningRight = true;
+    }
+
+    //change running condition
+    if(!leftHeld){runningLeft = false};
+    if(!rightHeld){runningRight = false};
+
+    //jetpack
+    if(jetpackOwned && downHeld){
+        spongebobSpeedY -= jetpackStrength;
+        if(spongebobSpeedY <= spongebobSpeedYCap * -1){spongebobSpeedY = spongebobSpeedYCap * -1}
+    }
+    localStorage.setItem("jumpCountAllEver", jumpCountAllEver);
+}
+
+function Sound(sound){
+    //jump sound
+    if(sound === "jump"){
+        jumpSound.currentTime = 0;
+        jumpSound.play()
+        jumpSound.volume = 0.5;
+    }
+    //jetpack sound
+    if(sound === "jetpack"){
+        jetpackSound.play()
+        jetpackSound.volume = 0.5;
+        jetpackSound.loop = true;
+    }
+    //buy things sound
+    if(sound === "money"){
+        moneySound.play()
+        moneySound.volume = 0.5;
+    }
+}
+
+function stopAllSounds() {
+    //this stops sounds when you pause the game
+    jumpSound.pause();
+    jetpackSound.pause();
+    moneySound.pause();
+};
+
+function render(){
+    //render spongebob
+    spongebob.style.top = spongebobY + "vw";
+    spongebob.style.left = spongebobX + "vw";
+    spongebob.style.width = spongebobWidth + "vw";
+    spongebob.style.height = spongebobHeight + "vw";
+    if(runningLeft){spongebob.style.backgroundImage = "url(spongebobRunLeft.png)"};
+    if(runningRight){spongebob.style.backgroundImage = "url(spongebobRunRight.png)"};
+    if(!runningLeft && !runningRight){spongebob.style.backgroundImage = "url(spongebob.png)"};
+    if(spongebobOnLeftWall || spongebobOnRightWall){spongebob.style.backgroundImage = "url(spongebob.png)"};
+    if(leftHeld && rightHeld){spongebob.style.backgroundImage = "url(spongebob.png)"};
+    //render accessories
+    if(hatOwned){hat.style.top = spongebobY - (0.215 * spongebobHeight) + "vw"; hat.style.left = spongebobX + "vw"; hat.style.width = spongebobWidth + "vw"; hat.style.height = spongebobHeight * 0.35 + "vw";};
+    if(jetpackOwned){jetpack.style.top = spongebobY + "vw"; jetpack.style.left = spongebobX + "vw"; jetpack.style.width = spongebobWidth + "vw"; jetpack.style.height = spongebobHeight * 2 + "vw"; if(downHeld){jetpack.style.backgroundImage = "url(jetpackOn.png)";}else{jetpack.style.backgroundImage = "url(jetpackOff.png)";}};
+    if(richBobOwned){
+        if(!runningLeft && !runningRight){spongebob.style.backgroundImage = "url(richbob.png)"};
+        if(spongebobOnLeftWall || spongebobOnRightWall){spongebob.style.backgroundImage = "url(richbob.png)"};
+        if(leftHeld && rightHeld){spongebob.style.backgroundImage = "url(richbob.png)"};
+        hat.style.backgroundImage = "url(richhat.png)";
+    }
+    //render hud
+    jumpCountDisplay.textContent = "Jumps: " + jumpCount;
+    moneyCountDisplay.textContent = "Money: " + moneyCount + "$";
+    jumpCountAllEverDisplay.textContent = "Total Jumps: " + jumpCountAllEver;
+    //render store
+    if(StoreIsOpen){storeMenu.style.visibility = "visible"}
+    if(!StoreIsOpen){storeMenu.style.visibility = "hidden"}
+    if(moneyCount >= 30){buyHat.style.backgroundColor = "green"; buyHat.style.color = "green";}else{buyHat.style.backgroundColor = "red"; buyHat.style.color = "red";}
+    if(moneyCount >= 100){buyJetpack.style.backgroundColor = "green"; buyJetpack.style.color = "green";}else{buyJetpack.style.backgroundColor = "red"; buyJetpack.style.color = "red";}
+    if(moneyCount >= 150){buyDoubleSpeed.style.backgroundColor = "green"; buyDoubleSpeed.style.color = "green";}else{buyDoubleSpeed.style.backgroundColor = "red"; buyDoubleSpeed.style.color = "red";}
+    if(moneyCount >= 200){buyTinyBob.style.backgroundColor = "green"; buyTinyBob.style.color = "green";}else{buyTinyBob.style.backgroundColor = "red"; buyTinyBob.style.color = "red";}
+    if(moneyCount >= 300){buyDoubleMoney.style.backgroundColor = "green"; buyDoubleMoney.style.color = "green";}else{buyDoubleMoney.style.backgroundColor = "red"; buyDoubleMoney.style.color = "red";}
+    if(moneyCount >= 500){buyDoubleGravity.style.backgroundColor = "green"; buyDoubleGravity.style.color = "green";}else{buyDoubleGravity.style.backgroundColor = "red"; buyDoubleGravity.style.color = "red";}
+    if(moneyCount >= 1000){buyRichBob.style.backgroundColor = "green"; buyRichBob.style.color = "green";}else{buyRichBob.style.backgroundColor = "red"; buyRichBob.style.color = "red";}
+}
+
+//store buy buttons
+function buyHatFunc(){
+    if(moneyCount >= 30){
+        moneyCount -= 30;
+        hatOwned = true;
+        buyHat.style.display = "none";
+        Sound('money');
+    }
+}
+
+function buyJetpackFunc(){
+    if(moneyCount >= 100){
+        moneyCount -= 100;
+        jetpackOwned = true;
+        buyJetpack.style.display = "none";
+        Sound('money');
+    }
+}
+
+function buyDoubleSpeedFunc(){
+    if(moneyCount >= 150){
+        moneyCount -= 150;
+        spongebobSpeedX *= 2;
+        buyDoubleSpeed.style.display = "none";
+        Sound('money');
+    }
+}
+
+function buyTinyBobFunc(){
+    if(moneyCount >= 200){
+        moneyCount -= 200;
+        spongebobWidth *= 0.5;
+        spongebobHeight *= 0.5;
         render();
+        buyTinyBob.style.display = "none";
+        Sound('money');
     }
+}
 
-    function physics(){
-        //gravity
-        spongebobSpeedY += gravity;
-        spongebobY += spongebobSpeedY;
-
-        //floor collision
-        if(spongebobY >= floorY - spongebobHeight){
-            spongebobOnGround = true;
-            spongebobSpeedY = 0;
-            spongebobY = floorY - spongebobHeight;
-        }else{
-            spongebobOnGround = false;
-        }
-
-        //wall collision
-        if(spongebobX >= 100 - spongebobWidth){
-            spongebobOnRightWall = true;
-            spongebobX = 100 - spongebobWidth;
-        }else{
-            spongebobOnRightWall = false;
-        }
-        if(spongebobX <= 0){
-            spongebobOnLeftWall = true;
-            spongebobX = 0;
-        }else{
-            spongebobOnLeftWall = false;
-        }
-
-        //ceiling collision
-        if(spongebobY <= 0){
-            spongebobSpeedY = 0;
-            spongebobY = 0;
-        }
-
-        //jump
-        if(upHeld && spongebobOnGround){
-            jumpCount++;
-            jumpCountAllEver++;
-            spongebobSpeedY = jumpStrength * -1;
-            Sound("jump");
-            moneyCount += moneyGainPerJump;
-        }
-
-        //run left
-        if(leftHeld && !spongebobOnLeftWall){
-            spongebobX -= spongebobSpeedX;
-            runningLeft = true;
-        }
-
-        //run right
-        if(rightHeld && !spongebobOnRightWall){
-            spongebobX += spongebobSpeedX;
-            runningRight = true;
-        }
-
-        //change running condition
-        if(!leftHeld){runningLeft = false};
-        if(!rightHeld){runningRight = false};
-
-        //jetpack
-        if(jetpackOwned && downHeld){
-            spongebobSpeedY -= jetpackStrength;
-            if(spongebobSpeedY <= spongebobSpeedYCap * -1){spongebobSpeedY = spongebobSpeedYCap * -1}
-        }
-        localStorage.setItem("jumpCountAllEver", jumpCountAllEver);
+function buyDoubleMoneyFunc(){
+    if(moneyCount >= 300){
+        moneyCount -= 300;
+        moneyGainPerJump *= 2;
+        buyDoubleMoney.style.display = "none";
+        Sound('money');
     }
+}
 
-    function Sound(sound){
-        //jump sound
-        if(sound === "jump"){
-            jumpSound.currentTime = 0;
-            jumpSound.play()
-            jumpSound.volume = 0.5;
-        }
-        //jetpack sound
-        if(sound === "jetpack"){
-            jetpackSound.play()
-            jetpackSound.volume = 0.5;
-            jetpackSound.loop = true;
-        }
-        //buy things sound
-        if(sound === "money"){
-            moneySound.play()
-            moneySound.volume = 0.5;
-        }
+function buyDoubleGravityFunc(){
+    if(moneyCount >= 500){
+        moneyCount -= 500;
+        gravity *= 2;
+        jetpackStrength = gravity * 2;
+        buyDoubleGravity.style.display = "none";
+        Sound('money');
     }
+}
 
-    function stopAllSounds() {
-        //this stops sounds when you pause the game
-        jumpSound.pause();
-        jetpackSound.pause();
-        moneySound.pause();
-    };
-
-    function render(){
-        //render spongebob
-        spongebob.style.top = spongebobY + "vw";
-        spongebob.style.left = spongebobX + "vw";
-        spongebob.style.width = spongebobWidth + "vw";
-        spongebob.style.height = spongebobHeight + "vw";
-        if(runningLeft){spongebob.style.backgroundImage = "url(spongebobRunLeft.png)"};
-        if(runningRight){spongebob.style.backgroundImage = "url(spongebobRunRight.png)"};
-        if(!runningLeft && !runningRight){spongebob.style.backgroundImage = "url(spongebob.png)"};
-        if(spongebobOnLeftWall || spongebobOnRightWall){spongebob.style.backgroundImage = "url(spongebob.png)"};
-        if(leftHeld && rightHeld){spongebob.style.backgroundImage = "url(spongebob.png)"};
-        //render accessories
-        if(hatOwned){hat.style.top = spongebobY - (0.215 * spongebobHeight) + "vw"; hat.style.left = spongebobX + "vw"; hat.style.width = spongebobWidth + "vw"; hat.style.height = spongebobHeight * 0.35 + "vw";};
-        if(jetpackOwned){jetpack.style.top = spongebobY + "vw"; jetpack.style.left = spongebobX + "vw"; jetpack.style.width = spongebobWidth + "vw"; jetpack.style.height = spongebobHeight * 2 + "vw"; if(downHeld){jetpack.style.backgroundImage = "url(jetpackOn.png)";}else{jetpack.style.backgroundImage = "url(jetpackOff.png)";}};
-        if(richBobOwned){
-            if(!runningLeft && !runningRight){spongebob.style.backgroundImage = "url(richbob.png)"};
-            if(spongebobOnLeftWall || spongebobOnRightWall){spongebob.style.backgroundImage = "url(richbob.png)"};
-            if(leftHeld && rightHeld){spongebob.style.backgroundImage = "url(richbob.png)"};
-            hat.style.backgroundImage = "url(richhat.png)";
-        }
-        //render hud
-        jumpCountDisplay.textContent = "Jumps: " + jumpCount;
-        moneyCountDisplay.textContent = "Money: " + moneyCount + "$";
-        jumpCountAllEverDisplay.textContent = "Total Jumps: " + jumpCountAllEver;
-        //render store
-        if(StoreIsOpen){storeMenu.style.visibility = "visible"}
-        if(!StoreIsOpen){storeMenu.style.visibility = "hidden"}
-        if(moneyCount >= 30){buyHat.style.backgroundColor = "green"; buyHat.style.color = "green";}else{buyHat.style.backgroundColor = "red"; buyHat.style.color = "red";}
-        if(moneyCount >= 100){buyJetpack.style.backgroundColor = "green"; buyJetpack.style.color = "green";}else{buyJetpack.style.backgroundColor = "red"; buyJetpack.style.color = "red";}
-        if(moneyCount >= 150){buyDoubleSpeed.style.backgroundColor = "green"; buyDoubleSpeed.style.color = "green";}else{buyDoubleSpeed.style.backgroundColor = "red"; buyDoubleSpeed.style.color = "red";}
-        if(moneyCount >= 200){buyTinyBob.style.backgroundColor = "green"; buyTinyBob.style.color = "green";}else{buyTinyBob.style.backgroundColor = "red"; buyTinyBob.style.color = "red";}
-        if(moneyCount >= 300){buyDoubleMoney.style.backgroundColor = "green"; buyDoubleMoney.style.color = "green";}else{buyDoubleMoney.style.backgroundColor = "red"; buyDoubleMoney.style.color = "red";}
-        if(moneyCount >= 500){buyDoubleGravity.style.backgroundColor = "green"; buyDoubleGravity.style.color = "green";}else{buyDoubleGravity.style.backgroundColor = "red"; buyDoubleGravity.style.color = "red";}
-        if(moneyCount >= 1000){buyRichBob.style.backgroundColor = "green"; buyRichBob.style.color = "green";}else{buyRichBob.style.backgroundColor = "red"; buyRichBob.style.color = "red";}
+function buyRichBobFunc(){
+    if(moneyCount >= 1000){
+        moneyCount -= 1000;
+        richBobOwned = true;
+        moneyGainPerJump *= 10;
+        buyRichBob.style.display = "none";
+        Sound('money');
     }
+}
 
-    //store buy buttons
-    function buyHatFunc(){
-        if(moneyCount >= 30){
-            moneyCount -= 30;
-            hatOwned = true;
-            buyHat.style.display = "none";
-            Sound('money');
-        }
+function convertMoneyToJumps(){
+    if(moneyCount > 0){
+        jumpCount += moneyCount;
+        jumpCountAllEver += moneyCount;
+        localStorage.setItem("jumpCountAllEver", jumpCountAllEver)
+        moneyCount = 0;
+        Sound('money')
     }
-
-    function buyJetpackFunc(){
-        if(moneyCount >= 100){
-            moneyCount -= 100;
-            jetpackOwned = true;
-            buyJetpack.style.display = "none";
-            Sound('money');
-        }
-    }
-
-    function buyDoubleSpeedFunc(){
-        if(moneyCount >= 150){
-            moneyCount -= 150;
-            spongebobSpeedX *= 2;
-            buyDoubleSpeed.style.display = "none";
-            Sound('money');
-        }
-    }
-
-    function buyTinyBobFunc(){
-        if(moneyCount >= 200){
-            moneyCount -= 200;
-            spongebobWidth *= 0.5;
-            spongebobHeight *= 0.5;
-            render();
-            buyTinyBob.style.display = "none";
-            Sound('money');
-        }
-    }
-
-    function buyDoubleMoneyFunc(){
-        if(moneyCount >= 300){
-            moneyCount -= 300;
-            moneyGainPerJump *= 2;
-            buyDoubleMoney.style.display = "none";
-            Sound('money');
-        }
-    }
-
-    function buyDoubleGravityFunc(){
-        if(moneyCount >= 500){
-            moneyCount -= 500;
-            gravity *= 2;
-            jetpackStrength = gravity * 2;
-            buyDoubleGravity.style.display = "none";
-            Sound('money');
-        }
-    }
-
-    function buyRichBobFunc(){
-        if(moneyCount >= 1000){
-            moneyCount -= 1000;
-            richBobOwned = true;
-            moneyGainPerJump *= 10;
-            buyRichBob.style.display = "none";
-            Sound('money');
-        }
-    }
-
-    function convertMoneyToJumps(){
-        if(moneyCount > 0){
-            jumpCount += moneyCount;
-            jumpCountAllEver += moneyCount;
-            localStorage.setItem("jumpCountAllEver", jumpCountAllEver)
-            moneyCount = 0;
-            Sound('money')
-        }
-    }
+}
 </script>
 </body>
 </html>
