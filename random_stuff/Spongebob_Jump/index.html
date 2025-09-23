@@ -4,18 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spongebob Jump</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="preload" as="image" href="spongebob.png" />
-    <link rel="preload" as="image" href="hat.png" />
-    <link rel="preload" as="image" href="spongebobRunLeft.png" />
-    <link rel="preload" as="image" href="spongebobRunRight.png" />
-    <link rel="preload" as="image" href="jetpackOff.png" />
-    <link rel="preload" as="image" href="jetpackOn.png" />
-    <link rel="preload" as="image" href="richbob.png" />
-    <link rel="preload" as="image" href="richhat.png" />
-    <link rel="preload" as="fetch" href="spongebob.mp3" />
-    <link rel="preload" as="fetch" href="jetpack.mp3" />
-    <link rel="preload" as="fetch" href="money.mp3" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="preload" as="image" href="spongebob.png">
+    <link rel="preload" as="image" href="hat.png">
+    <link rel="preload" as="image" href="spongebobRunLeft.png">
+    <link rel="preload" as="image" href="spongebobRunRight.png">
+    <link rel="preload" as="image" href="jetpackOff.png">
+    <link rel="preload" as="image" href="jetpackOn.png">
+    <link rel="preload" as="image" href="richbob.png">
+    <link rel="preload" as="image" href="richhat.png">
+    <link rel="preload" as="image" href="mrKrabs.png">
+    <link rel="preload" as="fetch" href="spongebob.mp3">
+    <link rel="preload" as="fetch" href="jetpack.mp3">
+    <link rel="preload" as="fetch" href="money.mp3">
+    <link rel="preload" as="fetch" href="mrKrabs.mp3">
+    <link rel="preload" as="fetch" href="spongebobScream.mp3">
     <style>
       body {
         margin: 0;
@@ -51,7 +54,7 @@
         left: 3vh;
         color: black;
         -webkit-text-stroke: 0.1vw white;
-        font-size: 4vw;
+        font-size: 3vw;
       }
       #moneyCountDisplay {
         position: absolute;
@@ -59,7 +62,7 @@
         right: 3vh;
         color: green;
         -webkit-text-stroke: 0.1vw white;
-        font-size: 4vw;
+        font-size: 3vw;
       }
       #hat {
         position: absolute;
@@ -85,7 +88,7 @@
         text-align: center;
         color: black;
         -webkit-text-stroke: 0.1vw white;
-        font-size: 4vw;
+        font-size: 3vw;
       }
       #pausedWarning {
         top: 15vh;
@@ -165,7 +168,7 @@
         -webkit-text-stroke: 0.1vw white;
         font-size: 4vw;
         overflow: auto;
-        line-height: 1;
+        line-height: 1.2;
       }
       .storeMenuButton {
         height: 3vw;
@@ -233,12 +236,49 @@
         font-size: 4vh;
         line-height: 0.1;
       }
+      #mrKrabs{
+        position: absolute;
+        background-image: url(mrKrabs.png);
+        background-size: 100% 100%;
+      }
+      #deadScreen{
+        visibility: hidden;
+        position: fixed;
+        height: 100vh;
+        width: 100vw;
+        background-image: url(background.jpg);
+        background-size: cover;
+        align-content: normal;
+        text-align: center;
+        font-size: 8vw;
+        -webkit-text-stroke: 0.1vw white;
+      }
+      #deadRestartButton{
+        top: 40vh;
+        left: 25vw;
+        width: 50vw;
+        height: 20vh;
+        position: fixed;
+        text-align: center;
+        align-content: center;
+        align-items: center;
+        visibility: inherit;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-family: inherit;
+        background-color: black;
+        border-color: white;
+        border-width: 0.2vw;
+        border-style: solid;
+        font-size: 6vw;
+      }
     </style>
   </head>
   <body>
     <div id="jetpack"></div>
     <div id="spongebob"></div>
     <div id="hat"></div>
+    <div id="mrKrabs"></div>
     <div id="floor"></div>
     <div id="pauseMenu">
       <div id="pausedWarning">PAUSED</div>
@@ -253,6 +293,7 @@
         <button class="storeMenuButton" id="buyDoubleMoney" onclick="buyDoubleMoneyFunc()">Double Money Gain (300$)</button>
         <button class="storeMenuButton" id="buyDoubleGravity" onclick="buyDoubleGravityFunc()">Double Gravity (500$)</button>
         <button class="storeMenuButton" id="buyRichBob" onclick="buyRichBobFunc()">RichBob (Also 10x Money) (1,000$)</button>
+        <button class="storeMenuButton" id="buyLessOftenMrKrabs" onclick="buyLessOftenMrKrabsFunc()">Mr Krabs Less Often (10,000$)</button>
       </div>
     </div>
     <div id="jumpCountDisplay"></div>
@@ -269,6 +310,7 @@
       </div>
     </div>
     <div id="jumpCountAllEverDisplay"></div>
+    <div id="deadScreen">You Died<button id="deadRestartButton" onclick="location.reload();">Restart Game</button></div>
     <script>
       //im gonna make the game work on phones later
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -279,6 +321,7 @@
       //variables declared here ↓
       const floor = document.getElementById("floor");
       const spongebob = document.getElementById("spongebob");
+      const mrKrabs = document.getElementById("mrKrabs");
       const pauseMenu = document.getElementById("pauseMenu");
       const hat = document.getElementById("hat");
       const jetpack = document.getElementById("jetpack");
@@ -293,11 +336,16 @@
       const buyDoubleMoney = document.getElementById("buyDoubleMoney");
       const buyDoubleGravity = document.getElementById("buyDoubleGravity");
       const buyRichBob = document.getElementById("buyRichBob");
+      const deadScreen = document.getElementById("deadScreen");
+      const buyLessOftenMrKrabs = document.getElementById("buyLessOftenMrKrabs");
       const jumpStrength = 0.3;
       const jumpSound = new Audio("spongebob.mp3");
       const jetpackSound = new Audio("jetpack.mp3");
       const moneySound = new Audio("money.mp3");
+      const mrKrabsSound = new Audio("mrKrabs.mp3");
+      const spongebobScreamSound = new Audio("spongebobScream.mp3");
       const spongebobSpeedYCap = 0.3;
+      const mrKrabsGravity = 0.007;
       var floorY = (parseFloat(getComputedStyle(floor).top) / window.innerWidth) * 100;
       var gravity = 0.006;
       var jetpackStrength = gravity * 2;
@@ -317,6 +365,10 @@
       var spongebobOnGround = true;
       var spongebobOnRightWall = false;
       var spongebobOnLeftWall = false;
+      var mrKrabsY = floorY + 1;
+      var mrKrabsX = 0;
+      var mrKrabsWidth = 9;
+      var mrKrabsHeight = 9;
       var jumpCount = 0;
       var jumpCountAllEver = parseFloat(localStorage.getItem("jumpCountAllEver")) || 0;
       var moneyCount = 0;
@@ -327,6 +379,13 @@
       var runningRight = false;
       var richBobOwned = false;
       var gameStarted = false;
+      var spongebobDead = false;
+      var spongebobRightSideX = spongebobX + spongebobWidth;
+      var spongebobBottomSideY = spongebobY + spongebobHeight;
+      var mrKrabsRightSideX = mrKrabsX + mrKrabsWidth;
+      var mrKrabsBottomSideY = mrKrabsY + mrKrabsHeight;
+      var mrKrabsYSpeed = 0;
+      var mrKrabsJumpDelay = 3000;
       //variables declared here ↑
 
       gameInterval = setInterval(frame, 4);
@@ -396,7 +455,7 @@
       });
 
       //reload the page when window resized to fix the floor height
-      window.addEventListener("resize", () => {floorY =(parseFloat(getComputedStyle(floor).top) / window.innerWidth) * 100;});
+      window.addEventListener("resize", () => {floorY =(parseFloat(getComputedStyle(floor).top) / window.innerWidth) * 100; mrKrabsY = floorY + 1});
 
       function frame() {
         if (!paused && gameStarted) {physics();}
@@ -406,9 +465,10 @@
 
       function physics() {
         //gravity
+        if(!spongebobDead){
         spongebobSpeedY += gravity;
         spongebobY += spongebobSpeedY;
-
+        }
         //floor collision
         if (spongebobY >= floorY - spongebobHeight) {
           spongebobOnGround = true;
@@ -448,13 +508,13 @@
         }
 
         //run left
-        if (leftHeld && !spongebobOnLeftWall) {
+        if (leftHeld && !spongebobOnLeftWall && !spongebobDead) {
           spongebobX -= spongebobSpeedX;
           runningLeft = true;
         }
 
         //run right
-        if (rightHeld && !spongebobOnRightWall) {
+        if (rightHeld && !spongebobOnRightWall && !spongebobDead) {
           spongebobX += spongebobSpeedX;
           runningRight = true;
         }
@@ -474,7 +534,28 @@
             spongebobSpeedY = spongebobSpeedYCap * -1;
           }
         }
+        //update the total jump count
         localStorage.setItem("jumpCountAllEver", jumpCountAllEver);
+        //make mrKrabs jump every single 6 seconds
+        if(!spongebobDead && framecount !== 0 && framecount % mrKrabsJumpDelay === 0){
+          mrKrabsX = Math.floor(Math.random() * (101 - mrKrabsWidth));
+          mrKrabsYSpeed = -0.5;
+          Sound("mrKrabs");
+        }
+        //update mr krabs position
+        mrKrabsY += mrKrabsYSpeed;
+        mrKrabsYSpeed += mrKrabsGravity;
+        //mrkrabs collide with floor
+        if(mrKrabsY >= floorY + 1){mrKrabsY = floorY + 1; mrKrabsYSpeed = 0;}
+        //update spongebob, then mrKrabs bottom and right sides
+        spongebobRightSideX = spongebobX + spongebobWidth;
+        spongebobBottomSideY = spongebobY + spongebobHeight;
+        mrKrabsRightSideX = mrKrabsX + mrKrabsWidth;
+        mrKrabsBottomSideY = mrKrabsY + mrKrabsHeight;
+        //check if spongebob is hitting mrkrabs
+        if(spongebobRightSideX < mrKrabsX || spongebobX > mrKrabsRightSideX || spongebobBottomSideY < mrKrabsY || spongebobY > mrKrabsBottomSideY){}else{
+          spongebobDeath();
+        }
       }
 
       function Sound(sound) {
@@ -495,6 +576,15 @@
           moneySound.play();
           moneySound.volume = 0.5;
         }
+        //mr Krabs sound
+        if (sound === "mrKrabs") {
+          mrKrabsSound.play();
+          mrKrabsSound.volume = 0.25;
+        }
+        //spongebob dead sound
+        if (sound === "spongebobScream") {
+          spongebobScreamSound.play();
+        }
       }
 
       function stopAllSounds() {
@@ -502,6 +592,8 @@
         jumpSound.pause();
         jetpackSound.pause();
         moneySound.pause();
+        mrKrabsSound.pause();
+        spongebobScreamSound.pause();
       }
 
       function render() {
@@ -559,6 +651,11 @@
         jumpCountDisplay.textContent = "Jumps: " + jumpCount;
         moneyCountDisplay.textContent = "Money: " + moneyCount + "$";
         jumpCountAllEverDisplay.textContent = "Total Jumps: " + jumpCountAllEver;
+        //render Mr Krabs
+        mrKrabs.style.top = mrKrabsY + "vw";
+        mrKrabs.style.left = mrKrabsX + "vw";
+        mrKrabs.style.width = mrKrabsWidth + "vw";
+        mrKrabs.style.height = mrKrabsHeight + "vw";
         //render store
         if (StoreIsOpen) {
           storeMenu.style.visibility = "visible";
@@ -614,6 +711,13 @@
         } else {
           buyRichBob.style.backgroundColor = "red";
           buyRichBob.style.color = "red";
+        }
+        if (moneyCount >= 10000) {
+          buyLessOftenMrKrabs.style.backgroundColor = "green";
+          buyLessOftenMrKrabs.style.color = "green";
+        } else {
+          buyLessOftenMrKrabs.style.backgroundColor = "red";
+          buyLessOftenMrKrabs.style.color = "red";
         }
       }
 
@@ -693,6 +797,22 @@
           moneyCount = 0;
           Sound("money");
         }
+      }
+
+      function buyLessOftenMrKrabsFunc() {
+        if (moneyCount >= 10000) {
+          moneyCount -= 10000;
+          mrKrabsJumpDelay = 5000;
+          buyLessOftenMrKrabs.style.display = "none";
+          Sound("money");
+        }
+      }
+
+      function spongebobDeath(){
+        spongebobDead = true;
+        spongebob.style.display = "none";
+        Sound("spongebobScream");
+        setTimeout(() => {deadScreen.style.visibility = "visible"; stopAllSounds()}, 3000);
       }
     </script>
   </body>
