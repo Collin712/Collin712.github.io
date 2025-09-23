@@ -536,9 +536,9 @@
         }
         //update the total jump count
         localStorage.setItem("jumpCountAllEver", jumpCountAllEver);
-        //make mrKrabs jump every single 6 seconds
+        //make mrKrabs jump every single 12 seconds
         if(!spongebobDead && framecount !== 0 && framecount % mrKrabsJumpDelay === 0){
-          mrKrabsX = Math.floor(Math.random() * (101 - mrKrabsWidth));
+          mrKrabsX = Math.random() * (100 - mrKrabsWidth);
           mrKrabsYSpeed = -0.5;
           Sound("mrKrabs");
         }
