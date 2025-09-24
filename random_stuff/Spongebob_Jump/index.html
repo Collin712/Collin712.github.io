@@ -385,7 +385,9 @@
       var mrKrabsRightSideX = mrKrabsX + mrKrabsWidth;
       var mrKrabsBottomSideY = mrKrabsY + mrKrabsHeight;
       var mrKrabsYSpeed = 0;
-      var mrKrabsJumpDelay = 3000;
+      var mrKrabsJumpFrame = 2000;
+      var mrKrabsJumpDelayMin = 1500;
+      var mrKrabsJumpDelayMax = 3000;
       //variables declared here ↑
 
       gameInterval = setInterval(frame, 4);
@@ -536,11 +538,12 @@
         }
         //update the total jump count
         localStorage.setItem("jumpCountAllEver", jumpCountAllEver);
-        //make mrKrabs jump every single 12 seconds
-        if(!spongebobDead && framecount !== 0 && framecount % mrKrabsJumpDelay === 0){
+        //make mrKrabs jump
+        if(!spongebobDead && framecount >= mrKrabsJumpFrame){
           mrKrabsX = Math.random() * (100 - mrKrabsWidth);
           mrKrabsYSpeed = -0.5;
           Sound("mrKrabs");
+          mrKrabsJumpFrame += Math.floor(Math.random() * (mrKrabsJumpDelayMax - mrKrabsJumpDelayMin)) + mrKrabsJumpDelayMin
         }
         //update mr krabs position
         mrKrabsY += mrKrabsYSpeed;
@@ -802,7 +805,8 @@
       function buyLessOftenMrKrabsFunc() {
         if (moneyCount >= 10000) {
           moneyCount -= 10000;
-          mrKrabsJumpDelay = 5000;
+          mrKrabsJumpDelayMax *= 2
+          mrKrabsJumpDelayMin *= 2
           buyLessOftenMrKrabs.style.display = "none";
           Sound("money");
         }
