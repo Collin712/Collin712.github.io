@@ -51,7 +51,7 @@
       #jumpCountDisplay {
         position: absolute;
         top: 3vh;
-        left: 3vh;
+        left: 3vw;
         color: black;
         -webkit-text-stroke: 0.1vw white;
         font-size: 3vw;
@@ -59,7 +59,7 @@
       #moneyCountDisplay {
         position: absolute;
         top: 3vh;
-        right: 3vh;
+        right: 3vw;
         color: green;
         -webkit-text-stroke: 0.1vw white;
         font-size: 3vw;
@@ -272,6 +272,36 @@
         border-style: solid;
         font-size: 6vw;
       }
+      #fuelBarBorder{
+        visibility: hidden;
+        position: absolute;
+        left: 3vw;
+        bottom: 30vh;
+        height: 50vh;
+        width: 3vw;
+        box-sizing: border-box;
+        border-color: white;
+        border-width: 0.2vw;
+        border-style: solid;
+      }
+      #fuelBar{
+        visibility: hidden;
+        position: absolute;
+        left: 3vw;
+        bottom: 30vh;
+        height: 50vh;
+        width: 3vw;
+        background-color: green;
+      }
+      #fuelBarBackground{
+        visibility: hidden;
+        position: absolute;
+        left: 3vw;
+        bottom: 30vh;
+        height: 50vh;
+        width: 3vw;
+        background-color: black;
+      }
     </style>
   </head>
   <body>
@@ -310,6 +340,9 @@
       </div>
     </div>
     <div id="jumpCountAllEverDisplay"></div>
+    <div id="fuelBarBackground"></div>
+    <div id="fuelBar"></div>
+    <div id="fuelBarBorder"></div>
     <div id="deadScreen">You Died<button id="deadRestartButton" onclick="location.reload();">Restart Game</button></div>
     <script>
       //im gonna make the game work on phones later
@@ -325,6 +358,9 @@
       const pauseMenu = document.getElementById("pauseMenu");
       const hat = document.getElementById("hat");
       const jetpack = document.getElementById("jetpack");
+      const fuelBar = document.getElementById("fuelBar");
+      const fuelBarBackground = document.getElementById("fuelBarBackground");
+      const fuelBarBorder = document.getElementById("fuelBarBorder");
       const jumpCountAllEverDisplay = document.getElementById("jumpCountAllEverDisplay");
       const jumpCountDisplay = document.getElementById("jumpCountDisplay");
       const moneyCountDisplay = document.getElementById("moneyCountDisplay");
@@ -344,7 +380,6 @@
       const moneySound = new Audio("money.mp3");
       const mrKrabsSound = new Audio("mrKrabs.mp3");
       const spongebobScreamSound = new Audio("spongebobScream.mp3");
-      const spongebobSpeedYCap = 0.3;
       const mrKrabsGravity = 0.007;
       var floorY = (parseFloat(getComputedStyle(floor).top) / window.innerWidth) * 100;
       var gravity = 0.006;
@@ -371,7 +406,7 @@
       var mrKrabsHeight = 9;
       var jumpCount = 0;
       var jumpCountAllEver = parseFloat(localStorage.getItem("jumpCountAllEver")) || 0;
-      var moneyCount = 0;
+      var moneyCount = 100;
       var moneyGainPerJump = 1;
       var hatOwned = false;
       var jetpackOwned = false;
@@ -386,8 +421,12 @@
       var mrKrabsBottomSideY = mrKrabsY + mrKrabsHeight;
       var mrKrabsYSpeed = 0;
       var mrKrabsJumpFrame = 2000;
-      var mrKrabsJumpDelayMin = 1500;
-      var mrKrabsJumpDelayMax = 3000;
+      var mrKrabsJumpDelayMin = 1 * 250;
+      var mrKrabsJumpDelayMax = 10 * 250;
+      var jetpackRecharging = false;
+      var jetpackFuel = 100;
+      var jetpackFuelDrain = 0.14;
+      var jetpackFuelRecharge = 0.075;
       //variables declared here ↑
 
       gameInterval = setInterval(frame, 4);
@@ -412,7 +451,7 @@
       document.addEventListener("DOMContentLoaded", () => {
         //only press buttons after everything is loaded
         function keypress(e) {
-          if (gameStarted) {
+          if (gameStarted && !spongebobDead) {
             if (e.key === "Escape") {
               pause();
             }
@@ -427,14 +466,11 @@
             }
             if (e.key === "ArrowDown") {
               downHeld = true;
-              if (jetpackOwned) {
-                Sound("jetpack");
-              }
             }
           }
         }
         function keyrelease(e) {
-          if (gameStarted) {
+          if (gameStarted && !spongebobDead) {
             if (e.key === "ArrowUp") {
               upHeld = false;
             }
@@ -446,9 +482,6 @@
             }
             if (e.key === "ArrowDown") {
               downHeld = false;
-              {
-                jetpackSound.pause();
-              }
             }
           }
         }
@@ -471,6 +504,7 @@
         spongebobSpeedY += gravity;
         spongebobY += spongebobSpeedY;
         }
+
         //floor collision
         if (spongebobY >= floorY - spongebobHeight) {
           spongebobOnGround = true;
@@ -530,14 +564,26 @@
         }
 
         //jetpack
-        if (jetpackOwned && downHeld) {
+        if (jetpackOwned && downHeld && !jetpackRecharging) {
           spongebobSpeedY -= jetpackStrength;
-          if (spongebobSpeedY <= spongebobSpeedYCap * -1) {
-            spongebobSpeedY = spongebobSpeedYCap * -1;
+          jetpackFuel -= jetpackFuelDrain;
+          if(jetpackFuel <= 0){
+            jetpackFuel = 0;
+            jetpackRecharging = true;
           }
+          Sound("jetpack");
+        }else{
+          jetpackFuel += jetpackFuelRecharge;
+          if(jetpackFuel >= 100){
+            jetpackFuel = 100;
+            jetpackRecharging = false;
+          }
+          jetpackSound.pause();
         }
+
         //update the total jump count
         localStorage.setItem("jumpCountAllEver", jumpCountAllEver);
+
         //make mrKrabs jump
         if(!spongebobDead && framecount >= mrKrabsJumpFrame){
           mrKrabsX = Math.random() * (100 - mrKrabsWidth);
@@ -545,17 +591,21 @@
           Sound("mrKrabs");
           mrKrabsJumpFrame += Math.floor(Math.random() * (mrKrabsJumpDelayMax - mrKrabsJumpDelayMin)) + mrKrabsJumpDelayMin
         }
+
         //update mr krabs position
         mrKrabsY += mrKrabsYSpeed;
         mrKrabsYSpeed += mrKrabsGravity;
+
         //mrkrabs collide with floor
         if(mrKrabsY >= floorY + 1){mrKrabsY = floorY + 1; mrKrabsYSpeed = 0;}
+
         //update spongebob, then mrKrabs bottom and right sides
         spongebobRightSideX = spongebobX + spongebobWidth;
         spongebobBottomSideY = spongebobY + spongebobHeight;
         mrKrabsRightSideX = mrKrabsX + mrKrabsWidth;
         mrKrabsBottomSideY = mrKrabsY + mrKrabsHeight;
         //check if spongebob is hitting mrkrabs
+
         if(spongebobRightSideX < mrKrabsX || spongebobX > mrKrabsRightSideX || spongebobBottomSideY < mrKrabsY || spongebobY > mrKrabsBottomSideY){}else{
           spongebobDeath();
         }
@@ -617,7 +667,7 @@
         if (spongebobOnLeftWall || spongebobOnRightWall) {
           spongebob.style.backgroundImage = "url(spongebob.png)";
         }
-        if (leftHeld && rightHeld) {
+        if (leftHeld && rightHeld && !paused) {
           spongebob.style.backgroundImage = "url(spongebob.png)";
         }
         //render accessories
@@ -632,10 +682,19 @@
           jetpack.style.left = spongebobX + "vw";
           jetpack.style.width = spongebobWidth + "vw";
           jetpack.style.height = spongebobHeight * 2 + "vw";
-          if (downHeld) {
+          if (downHeld && !jetpackRecharging) {
             jetpack.style.backgroundImage = "url(jetpackOn.png)";
           } else {
             jetpack.style.backgroundImage = "url(jetpackOff.png)";
+          }
+          fuelBar.style.visibility = "visible";
+          fuelBarBackground.style.visibility = "visible";
+          fuelBarBorder.style.visibility = "visible";
+          fuelBar.style.height = (jetpackFuel / 2) + "vh";
+          if(!jetpackRecharging){
+            fuelBar.style.backgroundColor = "green";
+          }else{
+            fuelBar.style.backgroundColor = "yellow";
           }
         }
         if (richBobOwned) {
@@ -805,8 +864,8 @@
       function buyLessOftenMrKrabsFunc() {
         if (moneyCount >= 10000) {
           moneyCount -= 10000;
-          mrKrabsJumpDelayMax *= 2
-          mrKrabsJumpDelayMin *= 2
+          mrKrabsJumpDelayMin = 5 * 250
+          mrKrabsJumpDelayMax = 13 * 250
           buyLessOftenMrKrabs.style.display = "none";
           Sound("money");
         }
@@ -815,6 +874,9 @@
       function spongebobDeath(){
         spongebobDead = true;
         spongebob.style.display = "none";
+        jetpack.style.display = "none";
+        hat.style.display = "none";
+        jetpackSound.pause();
         Sound("spongebobScream");
         setTimeout(() => {deadScreen.style.visibility = "visible"; stopAllSounds()}, 3000);
       }
