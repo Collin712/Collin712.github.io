@@ -472,7 +472,6 @@
       var jetpackFuelDrain = 0.2;
       var jetpackFuelRecharge = 0.075;
       var spongebobHealth = 100;
-      var spongebobRotation = 0;
       //variables declared here ↑
 
       gameInterval = setInterval(frame, 4);
@@ -593,21 +592,12 @@
         if (leftHeld && !spongebobOnLeftWall && !spongebobDead) {
           spongebobX -= spongebobSpeedX;
           runningLeft = true;
-          spongebobRotation = spongebobSpeedX * -1;
         }
 
         //run right
         if (rightHeld && !spongebobOnRightWall && !spongebobDead) {
           spongebobX += spongebobSpeedX;
           runningRight = true;
-          spongebobRotation = spongebobSpeedX;
-        }
-
-        if(!rightHeld && !leftHeld || spongebobOnGround || spongebobOnLeftWall || spongebobOnRightWall){
-          spongebobRotation = 0;
-        }
-        if(rightHeld && leftHeld){
-          spongebobRotation = 0;
         }
 
         //change running condition
@@ -712,7 +702,6 @@
         spongebob.style.left = spongebobX + "vw";
         spongebob.style.width = spongebobWidth + "vw";
         spongebob.style.height = spongebobHeight + "vw";
-        spongebob.style.transform = "rotate(" + (spongebobRotation * 200) + "deg)"
         if (runningLeft) {
           spongebob.style.backgroundImage = "url(spongebobRunLeft.png)";
         }
