@@ -313,6 +313,9 @@
         border-color: white;
         border-width: 0.2vw;
         border-style: solid;
+        color: black;
+        -webkit-text-stroke: 0.1vw white;
+        font-size: 2vw;
       }
       #healthBar{
         position: absolute;
@@ -370,7 +373,7 @@
     <div id="fuelBarBorder"></div>
     <div id="healthBarBackground"></div>
     <div id="healthBar"></div>
-    <div id="healthBarBorder"></div>
+    <div id="healthBarBorder">Health</div>
     <div id="StartGameMenu">
       <h1 id="gameTitle">Spongebob Jump</h1>
       <button id="startGameButton" onclick="document.getElementById('StartGameMenu').style.display = 'none'; gameStarted = true;">Start Game</button>
