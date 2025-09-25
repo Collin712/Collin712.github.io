@@ -323,7 +323,7 @@
         top: 13vh;
         height: 3vw;
         width: 20vw;
-        background-color: red;
+        background-color: limegreen;
       }
       #healthBarBackground{
         position: absolute;
@@ -362,7 +362,8 @@
         <button class="storeMenuButton" id="buyDoubleMoney" onclick="buyDoubleMoneyFunc()">Double Money Gain (300$)</button>
         <button class="storeMenuButton" id="buyFasterJetpackRecharge" onclick="buyFasterJetpackRechargeFunc()">Faster Jetpack Recharge (400$)</button>
         <button class="storeMenuButton" id="buyDoubleGravity" onclick="buyDoubleGravityFunc()">Double Gravity (500$)</button>
-        <button class="storeMenuButton" id="buyRichBob" onclick="buyRichBobFunc()">RichBob (Also 10x Money) (1,000$)</button>
+        <button class="storeMenuButton" id="buyRichBob" onclick="buyRichBobFunc()">RichBob (Also 10x Money) (1K$)</button>
+        <button class="storeMenuButton" id="buyDoubleHealth" onclick="buyDoubleHealthFunc()">Reset And Double Health (5K$)</button>
       </div>
     </div>
     <div id="jumpCountDisplay"></div>
@@ -373,7 +374,7 @@
     <div id="fuelBarBorder"></div>
     <div id="healthBarBackground"></div>
     <div id="healthBar"></div>
-    <div id="healthBarBorder">Health</div>
+    <div id="healthBarBorder">Health: 100%</div>
     <div id="StartGameMenu">
       <h1 id="gameTitle">Spongebob Jump</h1>
       <button id="startGameButton" onclick="document.getElementById('StartGameMenu').style.display = 'none'; gameStarted = true;">Start Game</button>
@@ -418,13 +419,15 @@
       const buyFasterJetpackRecharge = document.getElementById("buyFasterJetpackRecharge");
       const healthBar = document.getElementById("healthBar");
       const hurtOverlay = document.getElementById("hurtOverlay")
+      const healthBarBorder = document.getElementById("healthBarBorder");
+      const buyDoubleHealth = document.getElementById("buyDoubleHealth");
       const jumpStrength = 0.3;
       const jumpSound = new Audio("spongebob.mp3");
       const jetpackSound = new Audio("jetpack.mp3");
       const moneySound = new Audio("money.mp3");
       const mrKrabsSound = new Audio("mrKrabs.mp3");
       const spongebobScreamSound = new Audio("spongebobScream.mp3");
-      const mrKrabsGravity = 0.007;
+      const mrKrabsGravity = 0.008;
       var floorY = (parseFloat(getComputedStyle(floor).top) / window.innerWidth) * 100;
       var gravity = 0.006;
       var jetpackStrength = gravity * 2;
@@ -472,6 +475,8 @@
       var jetpackFuelDrain = 0.2;
       var jetpackFuelRecharge = 0.075;
       var spongebobHealth = 100;
+      var mrKrabsDamage = 0.275;
+      var healthBarRenderDivision = 5;
       //variables declared here ↑
 
       gameInterval = setInterval(frame, 4);
@@ -739,9 +744,9 @@
           fuelBarBorder.style.visibility = "visible";
           fuelBar.style.height = (jetpackFuel / 2) + "vh";
           if(!jetpackRecharging){
-            fuelBar.style.backgroundColor = "green";
+            fuelBar.style.backgroundColor = "orange";
           }else{
-            fuelBar.style.backgroundColor = "yellow";
+            fuelBar.style.backgroundColor = "red";
           }
         }
         if (richBobOwned) {
@@ -759,7 +764,8 @@
         //render hud
         jumpCountDisplay.textContent = "Jumps: " + jumpCount;
         moneyCountDisplay.textContent = "$" + moneyCount;
-        healthBar.style.width = (spongebobHealth / 5) + "vw";
+        healthBar.style.width = (spongebobHealth / healthBarRenderDivision) + "vw";
+        healthBarBorder.textContent = "Health: " + Math.ceil(spongebobHealth) + "%";
         jumpCountAllEverDisplay.textContent = "Total Jumps: " + jumpCountAllEver;
         //render Mr Krabs
         mrKrabs.style.top = mrKrabsY + "vw";
@@ -828,6 +834,13 @@
         } else {
           buyFasterJetpackRecharge.style.backgroundColor = "red";
           buyFasterJetpackRecharge.style.color = "red";
+        }
+        if (moneyCount >= 5000) {
+          buyDoubleHealth.style.backgroundColor = "green";
+          buyDoubleHealth.style.color = "green";
+        } else {
+          buyDoubleHealth.style.backgroundColor = "red";
+          buyDoubleHealth.style.color = "red";
         }
       }
 
@@ -917,10 +930,20 @@
           Sound("money");
         }
       }
+      
+      function buyDoubleHealthFunc() {
+        if (moneyCount >= 5000) {
+          moneyCount -= 5000;
+          spongebobHealth = 200;
+          healthBarRenderDivision *= 2
+          buyDoubleHealth.style.display = "none";
+          Sound("money");
+        }
+      }
 
       function mrKrabsHit(){
-        moneyCount -= (moneyCount / 100);
-        spongebobHealth -= 0.5;
+        moneyCount -= (moneyCount / 500);
+        spongebobHealth -= mrKrabsDamage;
         if(spongebobHealth <= 0){spongebobDeath()};
         hurtOverlay.style.visibility = "visible"
       }
