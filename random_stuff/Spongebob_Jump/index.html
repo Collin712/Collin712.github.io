@@ -47,6 +47,7 @@
         background-size: 100% 100%;
         background-repeat: no-repeat;
         background-position: center;
+        transform: rotate(0deg);
       }
       #jumpCountDisplay {
         position: absolute;
@@ -329,6 +330,13 @@
         width: 20vw;
         background-color: black;
       }
+      #hurtOverlay{
+        visibility: hidden;
+        position: fixed;
+        height: 100vh;
+        width: 100vw;
+        background-color: rgba(255, 0, 0, 0.25);
+      }
     </style>
   </head>
   <body>
@@ -337,6 +345,7 @@
     <div id="hat"></div>
     <div id="mrKrabs"></div>
     <div id="floor"></div>
+    <div id="hurtOverlay"></div>
     <div id="pauseMenu">
       <div id="pausedWarning">PAUSED</div>
       <button id="resumeButton" onclick="pause()">Resume</button>
@@ -405,6 +414,7 @@
       const deadScreen = document.getElementById("deadScreen");
       const buyFasterJetpackRecharge = document.getElementById("buyFasterJetpackRecharge");
       const healthBar = document.getElementById("healthBar");
+      const hurtOverlay = document.getElementById("hurtOverlay")
       const jumpStrength = 0.3;
       const jumpSound = new Audio("spongebob.mp3");
       const jetpackSound = new Audio("jetpack.mp3");
@@ -459,6 +469,7 @@
       var jetpackFuelDrain = 0.2;
       var jetpackFuelRecharge = 0.075;
       var spongebobHealth = 100;
+      var spongebobRotation = 0;
       //variables declared here ↑
 
       gameInterval = setInterval(frame, 4);
@@ -579,12 +590,21 @@
         if (leftHeld && !spongebobOnLeftWall && !spongebobDead) {
           spongebobX -= spongebobSpeedX;
           runningLeft = true;
+          spongebobRotation = spongebobSpeedX * -1;
         }
 
         //run right
         if (rightHeld && !spongebobOnRightWall && !spongebobDead) {
           spongebobX += spongebobSpeedX;
           runningRight = true;
+          spongebobRotation = spongebobSpeedX;
+        }
+
+        if(!rightHeld && !leftHeld || spongebobOnGround || spongebobOnLeftWall || spongebobOnRightWall){
+          spongebobRotation = 0;
+        }
+        if(rightHeld && leftHeld){
+          spongebobRotation = 0;
         }
 
         //change running condition
@@ -638,7 +658,7 @@
         mrKrabsBottomSideY = mrKrabsY + mrKrabsHeight;
         
         //check if spongebob is hitting mrkrabs
-        if(spongebobRightSideX < mrKrabsX || spongebobX > mrKrabsRightSideX || spongebobBottomSideY < mrKrabsY || spongebobY > mrKrabsBottomSideY){}else{
+        if(spongebobRightSideX < mrKrabsX || spongebobX > mrKrabsRightSideX || spongebobBottomSideY < mrKrabsY || spongebobY > mrKrabsBottomSideY){hurtOverlay.style.visibility = "hidden"}else{
           mrKrabsHit();
         }
 
@@ -689,6 +709,7 @@
         spongebob.style.left = spongebobX + "vw";
         spongebob.style.width = spongebobWidth + "vw";
         spongebob.style.height = spongebobHeight + "vw";
+        spongebob.style.transform = "rotate(" + (spongebobRotation * 200) + "deg)"
         if (runningLeft) {
           spongebob.style.backgroundImage = "url(spongebobRunLeft.png)";
         }
@@ -909,6 +930,7 @@
         moneyCount -= (moneyCount / 100);
         spongebobHealth -= 0.5;
         if(spongebobHealth <= 0){spongebobDeath()};
+        hurtOverlay.style.visibility = "visible"
       }
 
       function spongebobDeath(){
