@@ -943,7 +943,7 @@
 
       function mrKrabsHit(){
         spongebobHealth -= mrKrabsDamage;
-        if(spongebobHealth <= 0){spongebobDeath()};
+        if(spongebobHealth <= 0){spongebobDeath(); spongebobHealth = 0};
         hurtOverlay.style.visibility = "visible"
       }
 
