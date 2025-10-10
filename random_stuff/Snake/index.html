@@ -1,0 +1,241 @@
+<head>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Snake</title>
+    <style>
+    body{
+        margin: 0;
+        padding: 0;
+        background-color: gray;
+        overflow-y: hidden;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        user-select: none;
+        font-family: monospace;
+    }
+    #canvas{
+        width: 80vw;
+        height: 80vh;
+        image-rendering: pixelated;
+        object-fit: contain;
+    }
+    .optionSelector{
+        background-color: blanchedalmond;
+        border-radius: 5px;
+        border-width: 0.35vh;
+        border-color: black;
+        width: 9vw;
+    }
+    #optionsSelectorContainer{
+        display: flex;
+        gap: 1vw;
+        margin-bottom: 1.5vh;
+        margin-top: 1vh;
+    }
+    #optionsLabelsContainer{
+        display: flex;
+        gap: 1vw;
+        margin-bottom: 1.5vh;
+        margin-top: 1.5vh;
+        text-align: center;
+    }
+    .optionLabel{
+        background-color: blanchedalmond;
+        border-radius: 5px;
+        border-width: 0.35vh;
+        border-color: black;
+        border-style: solid;
+        width: 8.65vw;
+    }
+    #restartButton{
+        color: white;
+        background-color: red;
+        border-radius: 3px;
+        border-width: 0.5vh;
+        border-color: rgb(30, 30, 30);
+        width: 18vw;
+        font-size: large;
+        margin-bottom: 1.5vh;
+        font-weight: bold;
+    }
+    </style>
+</head>
+<body id='body'>
+<div id='optionsLabelsContainer'>
+    <div class='optionLabel'>Snake Body Color</div>
+    <div class='optionLabel'>Snake Head Color</div>
+    <div class='optionLabel'>Background Color </div>
+    <div class='optionLabel'>Apple Color</div>
+    <div class='optionLabel'>Game Width</div>
+    <div class='optionLabel'>Game Height</div>
+    <div class='optionLabel'>Snake Speed</div>
+</div>
+<div id='optionsSelectorContainer'>
+<select class='optionSelector' onchange='snakeBodyColor = this.value'>
+    <option value='green'>Green</option>
+    <option value='red'>Red</option>
+    <option value='DodgerBlue'>Blue</option>
+    <option value='yellow'>Yellow</option>
+    <option value='purple'>Purple</option>
+    <option value='black'>Black</option>
+    <option value='lime'>Lime</option>
+    <option value='DeepSkyBlue'>Light Blue</option>
+    <option value='DarkGreen'>Dark Green</option>
+    <option value='DarkRed'>Dark Red</option>
+    <option value='BurlyWood'>Tan</option>
+    <option value='CadetBlue'>Green Blue</option>
+    <option value='Chocolate'>Orange</option>
+    <option value='Navy'>Navy Blue</option>
+    <option value='PaleVioletRed'>Pink</option>
+    <option value='White'>White</option>
+    <option value='Gray'>Gray</option>
+    <option value='LightGray'>Light Gray</option>
+</select>
+<select class='optionSelector' onchange='snakeHeadColor = this.value'>
+    <option value='lime'>Lime</option>
+    <option value='green'>Green</option>
+    <option value='red'>Red</option>
+    <option value='DodgerBlue'>Blue</option>
+    <option value='yellow'>Yellow</option>
+    <option value='purple'>Purple</option>
+    <option value='black'>Black</option>
+    <option value='DeepSkyBlue'>Light Blue</option>
+    <option value='DarkGreen'>Dark Green</option>
+    <option value='DarkRed'>Dark Red</option>
+    <option value='BurlyWood'>Tan</option>
+    <option value='CadetBlue'>Green Blue</option>
+    <option value='Chocolate'>Orange</option>
+    <option value='Navy'>Navy Blue</option>
+    <option value='PaleVioletRed'>Pink</option>
+    <option value='White'>White</option>
+    <option value='Gray'>Gray</option>
+    <option value='LightGray'>Light Gray</option>
+</select>
+<select class='optionSelector' onchange='backgroundColor = this.value'>
+    <option value='black'>Black</option>
+    <option value='lime'>Lime</option>
+    <option value='green'>Green</option>
+    <option value='red'>Red</option>
+    <option value='DodgerBlue'>Blue</option>
+    <option value='yellow'>Yellow</option>
+    <option value='purple'>Purple</option>
+    <option value='DeepSkyBlue'>Light Blue</option>
+    <option value='DarkGreen'>Dark Green</option>
+    <option value='DarkRed'>Dark Red</option>
+    <option value='BurlyWood'>Tan</option>
+    <option value='CadetBlue'>Green Blue</option>
+    <option value='Chocolate'>Orange</option>
+    <option value='Navy'>Navy Blue</option>
+    <option value='PaleVioletRed'>Pink</option>
+    <option value='White'>White</option>
+    <option value='LightGray'>Light Gray</option>
+</select>
+<select class='optionSelector' onchange='appleColor = this.value'>
+    <option value='red'>Red</option>
+    <option value='green'>Green</option>
+    <option value='DodgerBlue'>Blue</option>
+    <option value='yellow'>Yellow</option>
+    <option value='purple'>Purple</option>
+    <option value='black'>Black</option>
+    <option value='lime'>Lime</option>
+    <option value='DeepSkyBlue'>Light Blue</option>
+    <option value='DarkGreen'>Dark Green</option>
+    <option value='DarkRed'>Dark Red</option>
+    <option value='BurlyWood'>Tan</option>
+    <option value='CadetBlue'>Green Blue</option>
+    <option value='Chocolate'>Orange</option>
+    <option value='Navy'>Navy Blue</option>
+    <option value='PaleVioletRed'>Pink</option>
+    <option value='White'>White</option>
+    <option value='Gray'>Gray</option>
+    <option value='LightGray'>Light Gray</option>
+</select>
+<input value='20' type='number' class='optionSelector' onchange='gameSize.x = this.value; canvas.width = gameSize.x'></input>
+<input value='17' type='number' class='optionSelector' onchange='gameSize.y = this.value; canvas.height = gameSize.y'></input>
+<input value='1' type='number' class='optionSelector' onchange='snakeSpeed = this.value; clearInterval(gameLoopInterval); gameLoopInterval = setInterval(gameLoop, 150 / snakeSpeed)'></input>
+</div>
+<button id='restartButton' onclick='restart()'>RESTART GAME</button>
+<canvas id='canvas'></canvas>
+</body>
+<script>
+const canvas = document.getElementById('canvas')
+const ctx = canvas.getContext('2d')
+let gameSize = {x: 20, y: 17}
+canvas.width = gameSize.x; canvas.height = gameSize.y
+let direction = 'nothing'
+let nextDirection = direction
+let apple = {x:Math.floor(Math.random()* gameSize.x),y:Math.floor(Math.random()* gameSize.y)}
+let snakeHead = {x: Math.floor(Math.random()* gameSize.x), y: Math.floor(Math.random()* gameSize.y)}
+if(apple.x === snakeHead.x && apple.y === snakeHead.y){
+    apple.x = Math.floor((gameSize.x * 0.7))
+    apple.y = Math.floor((gameSize.y * 0.7))
+    snakeHead.x = Math.floor((gameSize.x * 0.4))
+    snakeHead.y = Math.floor((gameSize.y * 0.4))
+}
+let snakeBody = []
+let snakeDead = false
+let snakeBodyLength = 0
+let snakeHeadColor = 'lime'
+let snakeBodyColor = 'green'
+let backgroundColor = 'black'
+let appleColor = 'red'
+let snakeSpeed = 1
+let gameLoopInterval = setInterval(gameLoop, 150 / snakeSpeed)
+document.addEventListener('keydown',(e)=>{
+if(e.key === 'ArrowUp' && direction !== 'down'){nextDirection = 'up'}else if(snakeBodyLength === 0 && e.key === 'ArrowUp'){nextDirection = 'up'}
+if(e.key === 'ArrowDown' && direction !== 'up'){nextDirection = 'down'}else if(snakeBodyLength === 0 && e.key === 'ArrowDown'){nextDirection = 'down'}
+if(e.key === 'ArrowLeft' && direction !== 'right'){nextDirection = 'left'}else if(snakeBodyLength === 0 && e.key === 'ArrowLeft'){nextDirection = 'left'}
+if(e.key === 'ArrowRight' && direction !== 'left'){nextDirection = 'right'}else if(snakeBodyLength === 0 && e.key === 'ArrowRight'){nextDirection = 'right'}
+})
+function gameLoop(){
+    //physics
+    if(!snakeDead){
+    snakeBody.push({x:snakeHead.x, y:snakeHead.y})
+    direction = nextDirection
+    if(nextDirection === 'up'){snakeHead.y--}
+    if(nextDirection === 'down'){snakeHead.y++}
+    if(nextDirection === 'left'){snakeHead.x--}
+    if(nextDirection === 'right'){snakeHead.x++}
+    }
+    if(snakeHead.x === apple.x && snakeHead.y === apple.y){apple.x = Math.floor(Math.random()* gameSize.x); apple.y = Math.floor(Math.random()* gameSize.y);snakeBodyLength++}else{snakeBody.shift()}
+    if(snakeHead.x >= gameSize.x){death()}
+    if(snakeHead.x < 0){death()}
+    if(snakeHead.y >= gameSize.y){death()}
+    if(snakeHead.y < 0){death()}
+    if(snakeBody.some(segment => segment.x === snakeHead.x && segment.y === snakeHead.y)){death()}
+    if(snakeBody.some(segment => segment.x === apple.x && segment.y === apple.y)){apple.x = Math.floor(Math.random()* gameSize.x); apple.y = Math.floor(Math.random()* gameSize.y)}
+    //render
+    if(!snakeDead){
+    ctx.fillStyle = backgroundColor
+    ctx.fillRect(0, 0, gameSize.x, gameSize.y)
+    ctx.fillStyle = snakeBodyColor
+    for(let segmentToRender = 0; segmentToRender < snakeBody.length; segmentToRender++) {
+        ctx.fillRect(snakeBody[segmentToRender].x, snakeBody[segmentToRender].y, 1, 1)
+    }
+    ctx.fillStyle = appleColor
+    ctx.fillRect(apple.x, apple.y, 1, 1)
+    ctx.fillStyle = snakeHeadColor
+    ctx.fillRect(snakeHead.x, snakeHead.y, 1, 1)
+    }
+}
+function death(){
+    snakeDead = true;
+}
+function restart(){
+direction = 'nothing'
+nextDirection = direction
+apple = {x: Math.floor(Math.random()* gameSize.x), y: Math.floor(Math.random()* gameSize.y)}
+snakeHead = {x: Math.floor(Math.random()* gameSize.x), y: Math.floor(Math.random()* gameSize.y)}
+if(apple.x === snakeHead.x && apple.y === snakeHead.y){
+    apple.x = Math.floor((gameSize.x * 0.7))
+    apple.y = Math.floor((gameSize.y * 0.7))
+    snakeHead.x = Math.floor((gameSize.x * 0.4))
+    snakeHead.y = Math.floor((gameSize.y * 0.4))
+}
+snakeBody = []
+snakeDead = false
+snakeBodyLength = 0
+}
+</script>
