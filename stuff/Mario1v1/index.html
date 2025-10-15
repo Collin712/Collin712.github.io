@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario 1v1</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            background-color: black;
+        }
+        #canvas{
+            width: 100vw;
+            height: 100vh;
+            image-rendering: pixelated;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="1600" height="900"></canvas>
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext('2d');
+var backgroundImage = new Image(); backgroundImage.src = 'background.png';
+var marioDeadImage = new Image(); marioDeadImage.src = 'marioDead.png';
+var marioJumpImage = new Image(); marioJumpImage.src = 'marioJump.png';
+var marioRun1Image = new Image(); marioRun1Image.src = 'marioRun1.png';
+var marioRun2Image = new Image(); marioRun2Image.src = 'marioRun2.png';
+var marioStandingImage = new Image(); marioStandingImage.src = 'marioStanding.png';
+var runAnimationTimer = 0;
+var gameStarted = false;
+var frameCount = 0;
+
+document.addEventListener("keydown", (e) => {
+    if(!gameStarted && e.key === "Enter"){
+        gameStarted = true; 
+        gameInterval = setInterval(gameUpdate, 1000/60);
+    }
+});
+
+function gameUpdate(){
+    render();
+    frameCount++;
+}
+
+function render(){
+    ctx.drawImage(backgroundImage, 0, 0);
+}
+</script>
+</body>
+</html>
