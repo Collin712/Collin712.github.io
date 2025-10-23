@@ -22,7 +22,7 @@ var init = function (window) {
         // TODO 1 : Declare and initialize our variables
         var circle;
         var circles = [];
-
+        
 
 
         // TODO 2 : Create a function that draws a circle 
@@ -32,13 +32,20 @@ var init = function (window) {
             view.addChild(circle);
             circles.push(circle);
         }
+
+
         
 
 
         // TODO 3 : Call the drawCircle() function
-        for(var i=1;i<=5;i++){
-            drawCircle();
+        var amountOfCircles = prompt("Circles:");
+        while(isNaN(amountOfCircles)){
+            alert("Invalid, type a number");
+            amountOfCircles = prompt("Circles:");
         }
+            for(var i=1;i<=amountOfCircles;i++){
+                drawCircle();
+            }
 
 
 
